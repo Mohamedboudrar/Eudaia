@@ -1,0 +1,208 @@
+{
+  "CHARGE": {
+    "label": "Charge de travail",
+    "emoji": "⚡",
+    "color": "#FF6B6B",
+    "seuil": 0.60,
+    "action_directe": "Audit charge / redistribution des tâches",
+    "actions": {
+      "court_terme": [
+        "Réunion d'équipe urgente pour cartographier et prioriser les tâches",
+        "Supprimer ou raccourcir les réunions non essentielles",
+        "Soutien RH individuel confidentiel proposé"
+      ],
+      "moyen_terme": [
+        "Audit de charge avec time-tracking sur 4 semaines",
+        "Recrutement ou renfort temporaire si sous-effectif confirmé",
+        "Former les managers à la gestion de la charge d'équipe"
+      ],
+      "long_terme": [
+        "Révision des OKR en concertation avec les équipes",
+        "Indicateurs de charge en temps réel dans le dashboard RH"
+      ]
+    },
+    "kpi": ["Heures supplémentaires", "Absentéisme", "Score QVT"],
+    "risque": "Burnout collectif, arrêts maladie, turnover"
+  },
+  "MGMT": {
+    "label": "Management",
+    "emoji": "👥",
+    "color": "#4ECDC4",
+    "seuil": 0.60,
+    "action_directe": "Formation managers / mise en place des 1:1",
+    "actions": {
+      "court_terme": [
+        "Entretiens RH confidentiels avec les collaborateurs concernés",
+        "Coaching individuel du manager ciblé",
+        "Mise en place de one-to-one hebdomadaires"
+      ],
+      "moyen_terme": [
+        "Formation management : écoute active, feedback constructif",
+        "Feedback 360° anonyme pour les managers",
+        "Charte managériale avec engagements mesurables"
+      ],
+      "long_terme": [
+        "Programme développement du leadership",
+        "Intégrer critères humains dans les promotions",
+        "Baromètre management semestriel"
+      ]
+    },
+    "kpi": ["eNPS", "Satisfaction management", "Turnover"],
+    "risque": "Désengagement massif, démissions silencieuses"
+  },
+  "OUTILS": {
+    "label": "Outils & Technologie",
+    "emoji": "🛠️",
+    "color": "#45B7D1",
+    "seuil": 0.60,
+    "action_directe": "Amélioration infrastructure IT",
+    "actions": {
+      "court_terme": [
+        "Audit rapide des pannes et bugs les plus fréquents",
+        "Support IT dédié avec SLA < 4h",
+        "Solutions de contournement documentées immédiatement"
+      ],
+      "moyen_terme": [
+        "Plan de migration des outils obsolètes",
+        "Formation utilisateurs sur les fonctionnalités avancées",
+        "Benchmark d'alternatives si outils inadaptés"
+      ],
+      "long_terme": [
+        "Roadmap IT partagée avec les équipes métier",
+        "Budget renouvellement du parc informatique"
+      ]
+    },
+    "kpi": ["Nb tickets IT", "Temps de résolution", "Productivité"],
+    "risque": "Perte de productivité, shadow IT, frustration"
+  },
+  "FORMATION": {
+    "label": "Formations & Évolution",
+    "emoji": "📚",
+    "color": "#F0C040",
+    "seuil": 0.60,
+    "action_directe": "Plans de développement RH individualisés",
+    "actions": {
+      "court_terme": [
+        "Entretiens professionnels anticipés pour les collaborateurs bloqués",
+        "Cartographier les souhaits de formation non satisfaits",
+        "Communiquer sur les opportunités disponibles dès maintenant"
+      ],
+      "moyen_terme": [
+        "Réviser et promouvoir le catalogue de formations",
+        "Clarifier le budget formation individuel",
+        "Processus de mobilité interne transparent"
+      ],
+      "long_terme": [
+        "GPEC : plan de développement des compétences à 3 ans",
+        "Programme mentoring / reverse mentoring",
+        "Parcours de carrière formalisés par métier"
+      ]
+    },
+    "kpi": ["Nb formations suivies", "Mobilité interne", "Turnover hauts potentiels"],
+    "risque": "Fuite des talents, stagnation des compétences"
+  },
+  "EQUIPE": {
+    "label": "Équipe & Ambiance",
+    "emoji": "🤝",
+    "color": "#96CEB4",
+    "seuil": 0.60,
+    "action_directe": "Événements team-building & médiation",
+    "actions": {
+      "court_terme": [
+        "Intervention RH / médiation si conflit avéré",
+        "Entretiens individuels confidentiels",
+        "Réunion d'équipe facilitée par un tiers neutre"
+      ],
+      "moyen_terme": [
+        "Atelier cohésion d'équipe (team building ciblé)",
+        "Formation communication non violente (CNV)",
+        "Protocole anti-harcèlement renforcé si nécessaire"
+      ],
+      "long_terme": [
+        "Travail sur la culture et les valeurs d'équipe",
+        "Rituels réguliers : rétrospective, célébrations",
+        "Enquête culture + plan d'action dédié"
+      ]
+    },
+    "kpi": ["Conflits déclarés", "Absentéisme", "eNPS"],
+    "risque": "Harcèlement, démissions en chaîne, RPS"
+  },
+  "SALAIRE": {
+    "label": "Salaire & Avantages",
+    "emoji": "💰",
+    "color": "#F0A500",
+    "seuil": 0.60,
+    "action_directe": "Audit compensation & benchmark marché",
+    "actions": {
+      "court_terme": [
+        "Revue immédiate des situations salariales les plus flagrantes",
+        "Communication transparente sur la politique de rémunération",
+        "Vérification de l'équité interne (F/H, ancienneté, poste)"
+      ],
+      "moyen_terme": [
+        "Benchmark salarial marché (secteur, région)",
+        "Révision de la grille salariale si écart confirmé",
+        "Améliorer le package global : avantages, flex, remote"
+      ],
+      "long_terme": [
+        "Politique de rémunération documentée et partagée",
+        "Critères d'augmentation clairs et objectifs",
+        "Intéressement / participation si pas encore en place"
+      ]
+    },
+    "kpi": ["Écart salarial marché", "Taux de démission", "Contre-offres acceptées"],
+    "risque": "Perte de talents, difficultés de recrutement"
+  },
+  "REMOTE": {
+    "label": "Télétravail & Flexibilité",
+    "emoji": "🏠",
+    "color": "#DDA0DD",
+    "seuil": 0.60,
+    "action_directe": "Revoir la politique télétravail RH",
+    "actions": {
+      "court_terme": [
+        "Rappel immédiat du droit à la déconnexion",
+        "Interdire les emails/appels après 19h et le weekend",
+        "Flexibilité horaire d'urgence pour les cas critiques"
+      ],
+      "moyen_terme": [
+        "Politique télétravail claire, écrite et équitable",
+        "Formation managers : respect de la vie privée et confiance",
+        "Configuration collective des outils (Do Not Disturb)"
+      ],
+      "long_terme": [
+        "Accord collectif sur le droit à la déconnexion",
+        "Revoir l'organisation si présentéisme non justifié",
+        "Programme QVT incluant l'équilibre pro/perso"
+      ]
+    },
+    "kpi": ["Emails hors horaires", "Taux télétravail accordé", "Congés pris"],
+    "risque": "Burnout, problèmes familiaux, absentéisme"
+  },
+  "WELLBEING": {
+    "label": "Bien-être & Santé",
+    "emoji": "💚",
+    "color": "#98D8C8",
+    "seuil": 0.60,
+    "action_directe": "Programme santé & wellness",
+    "actions": {
+      "court_terme": [
+        "Déploiement immédiat d'une ligne d'écoute psychologique confidentielle",
+        "Communication sur les ressources disponibles (médecin du travail, EAP)",
+        "Identification et accompagnement des signaux forts de burnout"
+      ],
+      "moyen_terme": [
+        "Programme wellness : sport, sophrologie, mindfulness en entreprise",
+        "Formation managers à la détection des signaux de détresse",
+        "Révision de la charge de travail si lien confirmé"
+      ],
+      "long_terme": [
+        "Politique QVT globale avec indicateurs de suivi",
+        "Enquête bien-être annuelle avec plan d'action",
+        "Intégration bien-être dans les critères de performance managériale"
+      ]
+    },
+    "kpi": ["Absentéisme", "Arrêts maladie", "Score bien-être", "Turnover"],
+    "risque": "Burnout collectif, accidents travail, coûts RH élevés"
+  }
+}

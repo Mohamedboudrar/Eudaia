@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon ressenti — QVT</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 48px 40px;
+      max-width: 560px;
+      width: 100%;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.18);
+    }
+
+    .header { text-align: center; margin-bottom: 36px; }
+    .header .icon { font-size: 3rem; margin-bottom: 12px; }
+    .header h1 { font-size: 1.7rem; color: #1a1a2e; font-weight: 700; margin-bottom: 8px; }
+    .header p  { color: #666; font-size: 0.95rem; line-height: 1.5; }
+
+    .badge-anon {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+
+    .form-group { margin-bottom: 28px; }
+
+    label {
+      display: block;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 130px;
+      transition: border-color 0.2s;
+      color: #333;
+      line-height: 1.6;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+    }
+    textarea::placeholder { color: #aaa; }
+
+    .char-count { font-size: 0.8rem; color: #999; text-align: right; margin-top: 4px; }
+
+    /* Notation 1 à 5 */
+    .note-label { margin-bottom: 14px; }
+
+    .note-options {
+      display: flex;
+      gap: 10px;
+      justify-content: space-between;
+    }
+
+    .note-options input[type="radio"] { display: none; }
+
+    .note-options label {
+      flex: 1;
+      text-align: center;
+      padding: 14px 8px 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+      color: #666;
+    }
+
+    .note-options label .emoji  { display: block; font-size: 1.6rem; margin-bottom: 4px; }
+    .note-options label .chiffre { font-size: 0.85rem; }
+
+    .note-options input:checked + label {
+      border-color: #667eea;
+      background: #f0f2ff;
+      color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102,126,234,0.2);
+    }
+
+    .note-options label:hover { border-color: #667eea; }
+
+    .note-libelles {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #999;
+      margin-top: 6px;
+      padding: 0 4px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.3px;
+    }
+    .btn-submit:hover  { opacity: 0.92; transform: translateY(-1px); }
+    .btn-submit:active { transform: translateY(0); }
+
+    .footer-info {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.78rem;
+      color: #bbb;
+      line-height: 1.6;
+    }
+    .footer-info a { color: #999; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <div class="icon">💬</div>
+      <h1>Comment ça se passe pour toi ?</h1>
+      <p>Exprime-toi librement sur ton quotidien au travail.<br>
+         Tes retours aident à améliorer les conditions de travail pour tous.</p>
+      <span class="badge-anon">🔒 100% anonyme — ton texte n'est jamais stocké</span>
+    </div>
+
+    <form action="/soumettre" method="POST" id="formQvt">
+
+      <!-- Verbatim libre -->
+      <div class="form-group">
+        <label for="verbatim">✍️ Décris ce que tu vis en ce moment au travail</label>
+        <textarea
+          id="verbatim"
+          name="verbatim"
+          placeholder="Ex : Je me sens débordé depuis plusieurs semaines, les priorités changent tout le temps et je n'arrive pas à tenir mes délais malgré mes efforts..."
+          maxlength="600"
+          required
+        ></textarea>
+        <div class="char-count"><span id="nbChar">0</span> / 600 caractères</div>
+      </div>
+
+      <!-- Note 1 à 5 -->
+      <div class="form-group">
+        <label class="note-label">⭐ En ce moment, comment tu te sens globalement ? <span style="color:#999;font-weight:400">(optionnel)</span></label>
+        <div class="note-options">
+          <div>
+            <input type="radio" name="note" id="n1" value="1">
+            <label for="n1"><span class="emoji">😟</span><span class="chiffre">1</span></label>
+          </div>
+          <div>
+            <input type="radio" name="note" id="n2" value="2">
+            <label for="n2"><span class="emoji">😕</span><span class="chiffre">2</span></label>
+          </div>
+          <div>
+            <input type="radio" name="note" id="n3" value="3">
+            <label for="n3"><span class="emoji">😐</span><span class="chiffre">3</span></label>
+          </div>
+          <div>
+            <input type="radio" name="note" id="n4" value="4">
+            <label for="n4"><span class="emoji">🙂</span><span class="chiffre">4</span></label>
+          </div>
+          <div>
+            <input type="radio" name="note" id="n5" value="5">
+            <label for="n5"><span class="emoji">😄</span><span class="chiffre">5</span></label>
+          </div>
+        </div>
+        <div class="note-libelles">
+          <span>Très mal</span>
+          <span>Très bien</span>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit">
+        Envoyer mon retour →
+      </button>
+    </form>
+
+    <div class="footer-info">
+      Tes données sont traitées automatiquement et agrégées.<br>
+      Les résultats ne sont affichés que si 5+ personnes ont répondu sur le même sujet.<br>
+      <a href="/dashboard">Accès RH →</a>
+    </div>
+  </div>
+
+  <script>
+    // Compteur de caractères
+    const ta = document.getElementById('verbatim');
+    const nb = document.getElementById('nbChar');
+    ta.addEventListener('input', () => {
+      nb.textContent = ta.value.length;
+    });
+
+    // Empêche soumission si champ trop court
+    document.getElementById('formQvt').addEventListener('submit', function(e) {
+      if (ta.value.trim().length < 10) {
+        e.preventDefault();
+        ta.style.borderColor = '#e53935';
+        ta.placeholder = '⚠️ Écris au moins quelques mots...';
+      }
+    });
+  </script>
+</body>
+</html>
