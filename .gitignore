@@ -1,0 +1,32 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# ── Environnements virtuels ───────────────────────────────────────────────────
+venv/
+.venv/
+env/
+.env
+
+# ── Modèles entraînés (générés par entrainer_modele()) ───────────────────────
+models/*.pkl
+models/active_model.txt
+models/zeroshot_cache/
+
+# ── Base de données (générée par seed_data.py) ────────────────────────────────
+data/qvt.db
+
+# ── Fichiers de sortie / exports ─────────────────────────────────────────────
+*.json
+!data/recommandations.json
+
+# ── Notebooks de test ────────────────────────────────────────────────────────
+*.ipynb
+
+# ── Fichiers inutiles ────────────────────────────────────────────────────────
+.DS_Store
+.env
+*.log

@@ -216,7 +216,7 @@
 
 <!-- NAVIGATION -->
 <nav>
-  <div class="logo">📊 Dashboard QVT</div>
+  <div class="logo">Tableau de Bord QVT</div>
   <div class="actions">
     <a href="/">Voir le formulaire</a>
     <a href="/dashboard" class="btn-nav">Actualiser</a>
@@ -228,12 +228,12 @@
   <!-- EN-TÊTE -->
   <div class="dash-header">
     <div>
-      <h1>Baromètre QVT — Vue RH</h1>
-      <p>Données agrégées et anonymisées · Minimum 5 retours par thème pour affichage</p>
+      <h1>Baromètre de Qualité de Vie au Travail</h1>
+      <p>Données agrégées et anonymisées · Minimum 5 réponses par thème</p>
     </div>
     {% if mois_dispo %}
     <div class="mois-select">
-      <label>📅 Période :</label>
+      <label>Période :</label>
       <select onchange="window.location='/dashboard?mois='+this.value">
         <option value="">Toutes les périodes</option>
         {% for m in mois_dispo %}
@@ -247,7 +247,7 @@
   <!-- KPI GLOBAUX -->
   <div class="kpi-grid">
     <div class="kpi-card {% if score_global.score_global < -0.3 %}danger{% elif score_global.score_global < 0 %}warning{% else %}ok{% endif %}">
-      <div class="kpi-icon">🌡️</div>
+      <div class="kpi-label" style="margin-bottom: 12px;">Score Global</div>
       <div class="kpi-val">
         {% if score_global.score_global >= 0.3 %}😊
         {% elif score_global.score_global >= -0.3 %}😐
@@ -255,30 +255,30 @@
         {% endif %}
         {{ "%.2f"|format(score_global.score_global) }}
       </div>
-      <div class="kpi-label">Score QVT global</div>
+      <div class="kpi-label">Sentiment Général</div>
       <div class="kpi-sub">Échelle de -1.0 (très négatif) à +1.0 (très positif)</div>
     </div>
 
     <div class="kpi-card info">
-      <div class="kpi-icon">💬</div>
+      <div class="kpi-label" style="margin-bottom: 12px;">Réponses</div>
       <div class="kpi-val">{{ score_global.total }}</div>
-      <div class="kpi-label">Retours reçus</div>
+      <div class="kpi-label">Total reçu</div>
       <div class="kpi-sub">Anonymisés et agrégés</div>
     </div>
 
     {% if score_global.note_globale %}
     <div class="kpi-card {% if score_global.note_globale >= 4 %}ok{% elif score_global.note_globale >= 3 %}warning{% else %}danger{% endif %}">
-      <div class="kpi-icon">⭐</div>
+      <div class="kpi-label" style="margin-bottom: 12px;">Bien-être Moyen</div>
       <div class="kpi-val">{{ score_global.note_globale }}/5</div>
-      <div class="kpi-label">Bien-être moyen déclaré</div>
+      <div class="kpi-label">Score Déclaré</div>
       <div class="kpi-sub">Score quanti 1→5</div>
     </div>
     {% endif %}
 
     <div class="kpi-card {% if alerte_burnout.alerte %}danger{% else %}ok{% endif %}">
-      <div class="kpi-icon">{% if alerte_burnout.alerte %}🚨{% else %}💚{% endif %}</div>
+      <div class="kpi-label" style="margin-bottom: 12px;">Signaux d'Alerte</div>
       <div class="kpi-val">{{ alerte_burnout.nb_signaux }}</div>
-      <div class="kpi-label">Signaux burnout détectés</div>
+      <div class="kpi-label">Détressance</div>
       <div class="kpi-sub">{% if alerte_burnout.alerte %}⚠️ Seuil d'alerte atteint (≥ 3){% else %}En dessous du seuil d'alerte{% endif %}</div>
     </div>
   </div>
@@ -286,9 +286,9 @@
   <!-- ALERTE BURNOUT -->
   {% if alerte_burnout.alerte %}
   <div class="burnout-alerte">
-    <div class="alerte-icon">🚨</div>
+    <div class="alerte-icon">⚠</div>
     <div>
-      <h3>Signal faible burnout détecté — {{ alerte_burnout.nb_signaux }} occurrence(s) ce mois</h3>
+      <h3>Alerte détectée — {{ alerte_burnout.nb_signaux }} signal(aux) ce mois</h3>
       <p>
         Des collaborateurs expriment des signaux de détresse importants. Action recommandée :
         déployer une ligne d'écoute psychologique confidentielle et proposer un soutien individuel anonyme.
@@ -299,19 +299,19 @@
   {% endif %}
 
   <!-- THÈMES -->
-  <div class="section-title">📊 Analyse par thème</div>
+  <div class="section-title">Analyse par Thème</div>
 
   {% if stats_themes %}
   <div class="themes-grid">
     {% for stat in stats_themes %}
     <div class="theme-card" style="--theme-color: {{ stat.color }}">
       <div class="theme-header">
-        <div class="theme-name">{{ stat.emoji }} {{ stat.label }}</div>
+        <div class="theme-name">{{ stat.label }}</div>
         <span class="urgence-badge {{ stat.urgence }}">{{ stat.urgence_label }}</span>
       </div>
 
       <div class="barre-label">
-        <span>😟 Négatif</span>
+        <span>Négatif</span>
         <span>{{ stat.pct_negatif }}%</span>
       </div>
       <div class="barre-bg">
@@ -319,7 +319,7 @@
       </div>
 
       <div class="barre-label">
-        <span>😐 Neutre</span>
+        <span>Neutre</span>
         <span>{{ ((stat.nb_neutre / stat.total) * 100)|round(1) }}%</span>
       </div>
       <div class="barre-bg">
@@ -327,7 +327,7 @@
       </div>
 
       <div class="barre-label">
-        <span>😊 Positif</span>
+        <span>Positif</span>
         <span>{{ ((stat.nb_positif / stat.total) * 100)|round(1) }}%</span>
       </div>
       <div class="barre-bg">
@@ -344,28 +344,27 @@
   </div>
   {% else %}
   <div class="empty-state">
-    <div class="empty-icon">📭</div>
-    <h3>Pas encore assez de données</h3>
-    <p>Il faut au moins 5 retours par thème pour afficher les résultats.<br>
-       <a href="/">Soumettre des retours →</a></p>
+    <h3>Données insuffisantes</h3>
+    <p>Un minimum de 5 réponses par thème est requis pour afficher les résultats.<br>
+       <a href="/">Soumettre un retour</a></p>
   </div>
   {% endif %}
 
   <!-- RECOMMANDATIONS -->
   {% if recommandations %}
-  <div class="section-title">⚡ Recommandations prioritaires — Seuil 60% négatif dépassé</div>
+  <div class="section-title">Recommandations Prioritaires — Seuil 60% négatif atteint</div>
   <div class="reco-grid">
     {% for reco in recommandations %}
     <div class="reco-card" style="--reco-color: {{ reco.color }}">
       <div class="reco-header">
-        <div class="reco-titre">{{ reco.emoji }} {{ reco.label }}</div>
+        <div class="reco-titre">{{ reco.label }}</div>
         <span class="pct-badge">{{ reco.pct_negatif }}% négatif</span>
       </div>
       <div class="reco-body">
-        <div class="reco-action-directe">🎯 {{ reco.action_directe }}</div>
+        <div class="reco-action-directe">{{ reco.action_directe }}</div>
 
         <div class="reco-horizon">
-          <h4>⚡ Court terme — &lt; 2 semaines</h4>
+          <h4>Court terme — &lt; 2 semaines</h4>
           <ul>
             {% for action in reco.actions.court_terme %}
             <li>{{ action }}</li>
@@ -374,7 +373,7 @@
         </div>
 
         <div class="reco-horizon">
-          <h4>📅 Moyen terme — 1 à 3 mois</h4>
+          <h4>Moyen terme — 1 à 3 mois</h4>
           <ul>
             {% for action in reco.actions.moyen_terme %}
             <li>{{ action }}</li>
@@ -383,7 +382,7 @@
         </div>
 
         <div class="reco-horizon">
-          <h4>🔭 Long terme — 3 à 12 mois</h4>
+          <h4>Long terme — 3 à 12 mois</h4>
           <ul>
             {% for action in reco.actions.long_terme %}
             <li>{{ action }}</li>
@@ -392,8 +391,8 @@
         </div>
 
         <div class="reco-kpi">
-          <strong>📈 KPI à suivre :</strong> {{ reco.kpi | join(" · ") }}<br>
-          <strong>⚠️ Risque si inaction :</strong> {{ reco.risque }}
+          <strong>KPI à suivre :</strong> {{ reco.kpi | join(" · ") }}<br>
+          <strong>Risque si inaction :</strong> {{ reco.risque }}
         </div>
       </div>
     </div>
@@ -404,7 +403,7 @@
   <!-- GRAPHIQUE TENDANCE -->
   {% if chart_tendances != '{}' %}
   <div class="section-title">📈 Tendance dans le temps</div>
-  <div class="chart-container">
+  <div class="chart-containerTendance dans le T
     <canvas id="chartTendance"></canvas>
   </div>
   {% endif %}
@@ -413,7 +412,7 @@
 
 <footer>
   Dashboard QVT · Données agrégées et anonymisées · Règle N≥5 appliquée · Aucun texte brut stocké
-</footer>
+</Tableau de bord QVT · Données anonymisées et agrégées · Minimum 5 réponses · Aucun texte brut archiv
 
 <script>
 // ── GRAPHIQUE TENDANCE ──

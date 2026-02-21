@@ -105,6 +105,17 @@ python nlp_engine.py
 
 ---
 
+# Passer en zero-shot
+curl -X POST http://127.0.0.1:5000/api/model/set/zeroshot
+
+# Revenir en logistic
+curl -X POST http://127.0.0.1:5000/api/model/set/logistic
+
+# Vérifier le moteur actif
+curl http://127.0.0.1:5000/api/model/current
+
+---
+
 ## 📊 Comprendre le dashboard
 
 ### Score QVT global

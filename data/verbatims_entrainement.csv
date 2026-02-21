@@ -14,13 +14,36 @@ texte,theme,sentiment
 "On demande beaucoup mais on ne donne pas les ressources pour y arriver.",CHARGE,NEGATIF
 "Je finis mes journées fatigué sans avoir l'impression d'avoir vraiment avancé.",CHARGE,NEGATIF
 "Il faudrait être plusieurs pour faire ce qui m'est demandé en une journée.",CHARGE,NEGATIF
+"Je cumule les responsabilités de deux postes depuis le départ de mon collègue sans compensation.",CHARGE,NEGATIF
+"Chaque matin j'ouvre ma boîte mail et j'ai déjà 40 messages en attente avant d'avoir commencé.",CHARGE,NEGATIF
+"On m'a confié un nouveau projet alors que les anciens ne sont pas terminés, c'est ingérable.",CHARGE,NEGATIF
+"Je n'arrive plus à faire mon travail correctement tellement la quantité est importante.",CHARGE,NEGATIF
+"Les urgences s'enchaînent sans qu'on puisse jamais travailler sur le fond.",CHARGE,NEGATIF
+"Je rentre chez moi épuisé chaque soir, le weekend ne suffit pas à récupérer.",CHARGE,NEGATIF
+"On n'a pas le temps de faire les choses bien, tout doit être fait vite et ça se voit sur la qualité.",CHARGE,NEGATIF
+"Le nombre de livrables par semaine a doublé sans que l'équipe ait grossi.",CHARGE,NEGATIF
+"Je mange souvent un sandwich devant mon écran, je n'ai jamais le temps de vraiment déjeuner.",CHARGE,NEGATIF
+"Mes congés sont systématiquement perturbés par des demandes urgentes, je ne décroche jamais vraiment.",CHARGE,NEGATIF
+"Depuis le départ de deux collègues, la charge restante est répartie sur les personnes encore là sans discussion.",CHARGE,NEGATIF
+"Je n'arrive pas à tout finir, et ça génère du stress en permanence.",CHARGE,NEGATIF
+"On nous demande de faire vite, bien et beaucoup, les trois à la fois, c'est impossible.",CHARGE,NEGATIF
+"Il est impossible de planifier ma journée tellement les demandes ad hoc s'accumulent.",CHARGE,NEGATIF
 "La charge est parfois un peu forte mais ça reste gérable la plupart du temps.",CHARGE,NEUTRE
 "Certaines semaines sont chargées d'autres plus calmes, ça s'équilibre.",CHARGE,NEUTRE
 "On a beaucoup de travail en ce moment mais c'est lié au projet qu'on lance.",CHARGE,NEUTRE
+"La charge est dense en ce moment mais je sais que c'est temporaire.",CHARGE,NEUTRE
+"Parfois c'est intense mais en général j'arrive à m'en sortir sans trop déborder.",CHARGE,NEUTRE
+"Il y a des pics de charge liés aux clôtures, mais ça reste ponctuel.",CHARGE,NEUTRE
+"La quantité de travail varie beaucoup, c'est un peu imprévisible.",CHARGE,NEUTRE
+"La charge me convient globalement, même si certains sujets empiètent sur d'autres.",CHARGE,NEUTRE
 "J'apprécie que la charge soit bien répartie dans l'équipe, tout le monde tire dans le même sens.",CHARGE,POSITIF
 "Mon manager est attentif à ne pas nous surcharger, il sait dire non aux demandes excessives.",CHARGE,POSITIF
 "On a une bonne visibilité sur les priorités, ça aide vraiment à organiser mon travail.",CHARGE,POSITIF
 "Je me sens stimulé sans être débordé, c'est un bon équilibre pour moi.",CHARGE,POSITIF
+"La charge est adaptée à mon niveau, je me sens challengé sans être écrasé.",CHARGE,POSITIF
+"Mon manager sait arbitrer les priorités pour qu'on ne soit pas surchargés inutilement.",CHARGE,POSITIF
+"J'ai le temps de faire mon travail correctement sans être constamment dans l'urgence.",CHARGE,POSITIF
+"La charge est bien calibrée, je peux m'investir à fond sans sacrifier ma vie personnelle.",CHARGE,POSITIF
 "Mon manager ne nous donne jamais de retour sur notre travail, ni positif ni négatif.",MGMT,NEGATIF
 "J'ai l'impression que mes idées sont systématiquement ignorées en réunion.",MGMT,NEGATIF
 "Le management change de cap toutes les semaines, on ne sait plus où on va.",MGMT,NEGATIF
@@ -35,13 +58,38 @@ texte,theme,sentiment
 "Mon manager ne défend pas son équipe face à la direction, on se sent abandonnés.",MGMT,NEGATIF
 "Les décisions tombent d'en haut sans jamais nous consulter.",MGMT,NEGATIF
 "La communication avec la hiérarchie est très opaque, on comprend rarement les choix faits.",MGMT,NEGATIF
+"Mon manager prend le crédit de nos travaux en réunion sans nous citer.",MGMT,NEGATIF
+"J'ai l'impression que mon responsable ne me fait pas confiance, il vérifie tout.",MGMT,NEGATIF
+"Mon chef est condescendant, il ne nous parle pas comme à des professionnels.",MGMT,NEGATIF
+"Les promesses faites par le management ne sont jamais tenues, on ne croit plus rien.",MGMT,NEGATIF
+"Mon manager arrive en retard à nos one-to-one et les annule souvent à la dernière minute.",MGMT,NEGATIF
+"Mon responsable n'assume jamais ses erreurs, ça retombe toujours sur l'équipe.",MGMT,NEGATIF
+"On n'est jamais consultés avant les réorganisations, on l'apprend au dernier moment.",MGMT,NEGATIF
+"Mon manager joue les individus contre les autres, l'atmosphère est délétère.",MGMT,NEGATIF
+"La direction ne communique ses attentes que de façon vague, impossible de savoir si on est dans la bonne direction.",MGMT,NEGATIF
+"Mon responsable n'est jamais là en cas de crise, on se débrouille seuls.",MGMT,NEGATIF
+"Les réunions avec le management se résument à des monologues, on n'a jamais la parole.",MGMT,NEGATIF
+"Mon manager micromanage les petits détails mais ignore les vrais problèmes stratégiques.",MGMT,NEGATIF
+"Je n'ai aucune idée de comment je suis perçu par ma hiérarchie, c'est très inconfortable.",MGMT,NEGATIF
+"Mon manager change d'avis constamment, impossible de savoir ce qu'il veut vraiment.",MGMT,NEGATIF
 "Le management est correct mais il manque vraiment de vision pour nous donner de la direction.",MGMT,NEUTRE
 "Mon manager est sympa mais pas très présent, on se débrouille beaucoup seuls.",MGMT,NEUTRE
 "Les relations avec la hiérarchie sont professionnelles, sans plus.",MGMT,NEUTRE
+"Le management fonctionne mais manque parfois de clarté dans les messages.",MGMT,NEUTRE
+"Mon responsable est compétent techniquement mais moins à l'aise dans la relation humaine.",MGMT,NEUTRE
+"Le management fait son travail sans vraiment se distinguer, c'est correct.",MGMT,NEUTRE
+"Mon manager communique l'essentiel mais pas toujours avec le contexte nécessaire.",MGMT,NEUTRE
+"Les décisions viennent du haut mais sont généralement bien expliquées a posteriori.",MGMT,NEUTRE
 "Mon manager nous fait vraiment confiance et ça change tout au quotidien.",MGMT,POSITIF
 "J'ai un one-to-one toutes les semaines avec mon responsable, c'est très précieux.",MGMT,POSITIF
 "Mon chef reconnaît publiquement les efforts de l'équipe, on se sent vraiment valorisés.",MGMT,POSITIF
 "J'ai une vraie autonomie dans mon poste et mon manager me soutient quand j'en ai besoin.",MGMT,POSITIF
+"Mon responsable nous explique toujours le pourquoi des décisions, c'est très appréciable.",MGMT,POSITIF
+"Mon manager se bat pour nous obtenir les ressources dont on a besoin, c'est rassurant.",MGMT,POSITIF
+"Mon responsable est à l'écoute et agit vraiment quand on lui remonte un problème.",MGMT,POSITIF
+"Mon manager nous implique dans les décisions qui nous concernent, c'est motivant.",MGMT,POSITIF
+"La direction donne une vision claire et inspire vraiment confiance.",MGMT,POSITIF
+"Mon responsable sait reconnaître les erreurs et en tirer des leçons, c'est rare.",MGMT,POSITIF
 "L'ERP plante au moins deux fois par jour, je perds un temps fou à chaque incident.",OUTILS,NEGATIF
 "On travaille encore avec des logiciels vieux de 15 ans, c'est épuisant.",OUTILS,NEGATIF
 "J'ai dû redemander mes accès trois fois cette semaine, rien ne fonctionne correctement.",OUTILS,NEGATIF
@@ -52,13 +100,34 @@ texte,theme,sentiment
 "La nouvelle application est tellement peu intuitive que personne ne sait s'en servir.",OUTILS,NEGATIF
 "On n'a reçu aucune formation sur les nouveaux logiciels déployés ce trimestre.",OUTILS,NEGATIF
 "Le support IT met souvent plusieurs jours à répondre, et les tickets restent ouverts des semaines.",OUTILS,NEGATIF
+"Les licences de nos logiciels n'ont pas été renouvelées, je travaille avec des versions périmées.",OUTILS,NEGATIF
+"On partage des fichiers par email faute d'outil collaboratif, c'est archaïque.",OUTILS,NEGATIF
+"Les bugs de la plateforme nous font perdre des heures chaque semaine sans correction en vue.",OUTILS,NEGATIF
+"Nos outils ne sont pas accessibles sur mobile, c'est bloquant quand on est en déplacement.",OUTILS,NEGATIF
+"La sécurité des données est problématique mais personne ne semble s'en préoccuper.",OUTILS,NEGATIF
+"On m'a donné un outil sans documentation ni support, je me débrouille seul.",OUTILS,NEGATIF
+"L'outil de gestion de projet est inutilisable, tout le monde est revenu aux tableurs.",OUTILS,NEGATIF
+"Les mises à jour logicielles cassent régulièrement des fonctionnalités qu'on utilisait.",OUTILS,NEGATIF
+"Je passe plus de temps à contourner les bugs qu'à vraiment travailler.",OUTILS,NEGATIF
+"On n'a toujours pas d'outil de signature électronique, tout passe encore par courrier.",OUTILS,NEGATIF
+"Le logiciel de reporting est tellement lent que les extractions prennent parfois une heure.",OUTILS,NEGATIF
+"Notre intranet est désorganisé, on perd un temps fou à chercher les bons documents.",OUTILS,NEGATIF
 "Les outils sont corrects mais il y a des améliorations qui seraient les bienvenues.",OUTILS,NEUTRE
 "On a de bons outils mais leur adoption est encore inégale dans l'équipe.",OUTILS,NEUTRE
 "Les outils fonctionnent bien dans l'ensemble, quelques petits bugs de temps en temps.",OUTILS,NEUTRE
+"L'environnement technique est suffisant pour travailler, sans être exceptionnel.",OUTILS,NEUTRE
+"Les outils sont adéquats même si on pourrait faire mieux avec des solutions plus récentes.",OUTILS,NEUTRE
+"On manque d'un outil vraiment centralisé, mais les solutions actuelles se complètent.",OUTILS,NEUTRE
+"Les outils sont acceptables, avec quelques limitations qu'on apprend à contourner.",OUTILS,NEUTRE
 "Depuis la migration vers le nouveau système, tout est vraiment fluide et efficace.",OUTILS,POSITIF
 "On vient d'avoir de nouveaux ordinateurs et c'est un vrai gain de productivité.",OUTILS,POSITIF
 "Le support IT est très réactif, mes problèmes sont toujours résolus rapidement.",OUTILS,POSITIF
 "Les outils qu'on utilise sont modernes et vraiment adaptés à notre façon de travailler.",OUTILS,POSITIF
+"Notre stack technologique est à l'état de l'art, c'est un vrai avantage au quotidien.",OUTILS,POSITIF
+"La plateforme collaborative qu'on vient d'adopter a transformé notre façon de travailler.",OUTILS,POSITIF
+"L'intégration entre nos différents outils est très bien pensée, on ne perd plus de temps.",OUTILS,POSITIF
+"Le déploiement du nouveau CRM s'est très bien passé, on a été bien accompagnés.",OUTILS,POSITIF
+"Les mises à jour sont régulières et améliorent vraiment l'expérience utilisateur.",OUTILS,POSITIF
 "J'ai demandé une formation il y a 8 mois et je n'ai toujours pas eu de réponse.",FORMATION,NEGATIF
 "Il n'y a aucun plan de carrière défini, on ne sait pas vers où évoluer.",FORMATION,NEGATIF
 "On nous parle d'évolution depuis 2 ans mais rien ne se concrétise jamais.",FORMATION,NEGATIF
@@ -69,13 +138,35 @@ texte,theme,sentiment
 "Pour se former il faut se battre, ce n'est pas une priorité pour la direction.",FORMATION,NEGATIF
 "L'entretien professionnel est une formalité, personne ne suit vraiment ce qu'on y dit.",FORMATION,NEGATIF
 "Je ne sais pas comment fonctionne le processus pour demander une formation.",FORMATION,NEGATIF
+"On n'a aucune visibilité sur les promotions, les critères sont totalement flous.",FORMATION,NEGATIF
+"J'ai été refusé pour une formation externe sans qu'on m'explique pourquoi.",FORMATION,NEGATIF
+"Les certifications que j'ai obtenues par moi-même ne sont pas reconnues en interne.",FORMATION,NEGATIF
+"La veille métier est laissée à notre initiative, l'entreprise ne facilite rien.",FORMATION,NEGATIF
+"Mon évolution dépend uniquement d'un manager qui ne me connaît pas vraiment.",FORMATION,NEGATIF
+"Le catalogue de formation est vaste sur le papier mais inaccessible faute de temps accordé.",FORMATION,NEGATIF
+"J'ai demandé une évolution de poste trois fois sans réponse claire.",FORMATION,NEGATIF
+"Le CPF est mon seul recours pour me former, l'entreprise ne fait rien.",FORMATION,NEGATIF
+"Les formations internes sont recyclées depuis des années, elles ne correspondent plus aux enjeux actuels.",FORMATION,NEGATIF
+"Je ne vois aucune perspective d'évolution dans cette entreprise, c'est démotivant.",FORMATION,NEGATIF
+"L'onboarding était très insuffisant, j'ai mis 6 mois à comprendre comment fonctionne vraiment l'organisation.",FORMATION,NEGATIF
+"Les entretiens annuels ne donnent lieu à aucun plan d'action concret.",FORMATION,NEGATIF
 "Il y a des formations disponibles mais on manque de temps pour les suivre.",FORMATION,NEUTRE
 "L'offre de formation existe mais elle mériterait d'être mieux communiquée.",FORMATION,NEUTRE
+"Les possibilités existent mais elles restent peu visibles pour les collaborateurs.",FORMATION,NEUTRE
+"Le catalogue de formation est correct mais peu adapté à mon métier spécifique.",FORMATION,NEUTRE
+"Il y a des opportunités d'évolution mais elles ne sont pas systématiques.",FORMATION,NEUTRE
+"La formation est encouragée sans être vraiment structurée.",FORMATION,NEUTRE
+"On peut se former si on en prend l'initiative, mais ce n'est pas proactif.",FORMATION,NEUTRE
 "J'ai suivi une bonne formation ce trimestre et j'attends la prochaine avec impatience.",FORMATION,POSITIF
 "Mon manager m'a encouragé à me former et a libéré du temps pour ça, c'est top.",FORMATION,POSITIF
 "On a un vrai parcours de développement structuré, je sais exactement où je vais.",FORMATION,POSITIF
 "L'entreprise investit vraiment dans la montée en compétence, ça se sent au quotidien.",FORMATION,POSITIF
 "J'ai pu demander une formation pointue dans mon domaine et elle a été acceptée rapidement.",FORMATION,POSITIF
+"Mon manager m'a proposé un plan de développement personnalisé, c'est très motivant.",FORMATION,POSITIF
+"J'ai été promu après un parcours clair et transparent, je me sens reconnu.",FORMATION,POSITIF
+"L'entreprise finance des certifications professionnelles reconnues, c'est un vrai investissement.",FORMATION,POSITIF
+"J'ai une roadmap de carrière sur 3 ans avec des jalons précis, c'est rassurant.",FORMATION,POSITIF
+"Les formations sont variées, accessibles et directement applicables à mon quotidien.",FORMATION,POSITIF
 "Il y a une vraie ambiance de compétition toxique dans l'équipe, personne ne s'entraide.",EQUIPE,NEGATIF
 "Les conflits entre deux collègues empoisonnent l'atmosphère de toute l'équipe.",EQUIPE,NEGATIF
 "Je me sens mis à l'écart, comme si je n'étais pas vraiment intégré dans le groupe.",EQUIPE,NEGATIF
@@ -86,14 +177,35 @@ texte,theme,sentiment
 "Les tensions entre l'équipe commerciale et la technique rendent les projets difficiles.",EQUIPE,NEGATIF
 "On manque de moments d'échange informel, tout est très formel et ça crée une distance.",EQUIPE,NEGATIF
 "Je ne connais même pas vraiment mes collègues, on n'a aucun moment pour se retrouver.",EQUIPE,NEGATIF
+"Certains collègues ne font pas leur part du travail et ça retombe sur les autres.",EQUIPE,NEGATIF
+"Le manque de respect entre certains membres de l'équipe rend les réunions très pénibles.",EQUIPE,NEGATIF
+"Les nouvelles recrues ne sont pas bien intégrées, elles sont livrées à elles-mêmes.",EQUIPE,NEGATIF
+"Les informations ne circulent pas bien entre collègues, on apprend les choses trop tard.",EQUIPE,NEGATIF
+"Il y a des sous-groupes qui s'excluent mutuellement, ce n'est pas sain.",EQUIPE,NEGATIF
+"Certains monopolisent la parole en réunion et personne ne peut s'exprimer.",EQUIPE,NEGATIF
+"Le turnover est fort dans l'équipe, on ne peut pas construire quelque chose de stable.",EQUIPE,NEGATIF
+"Il n'y a aucune culture du feedback entre pairs, on ne sait pas comment on est perçus.",EQUIPE,NEGATIF
+"On travaille en parallèle sans vraiment se coordonner, beaucoup d'énergie est gaspillée.",EQUIPE,NEGATIF
+"Un collègue s'approprie régulièrement les idées des autres, c'est démotivant.",EQUIPE,NEGATIF
+"La communication entre les équipes est quasi inexistante, on se marche dessus souvent.",EQUIPE,NEGATIF
+"L'atmosphère dans l'open space est pesante, on ne parle presque plus entre collègues.",EQUIPE,NEGATIF
 "L'équipe est sympa mais un peu en silo, on pourrait mieux collaborer.",EQUIPE,NEUTRE
 "Les relations sont cordiales sans être très proches, ça convient à la plupart.",EQUIPE,NEUTRE
 "On s'entend bien dans l'équipe même si on ne se voit pas beaucoup hors du travail.",EQUIPE,NEUTRE
+"La cohésion est correcte mais on pourrait aller plus loin dans la collaboration.",EQUIPE,NEUTRE
+"Les échanges sont polis et professionnels, sans grande chaleur humaine.",EQUIPE,NEUTRE
+"L'équipe est fonctionnelle mais manque d'un vrai esprit collectif.",EQUIPE,NEUTRE
+"Les relations sont bonnes sans être exceptionnelles, ça fait le travail.",EQUIPE,NEUTRE
 "L'ambiance dans mon équipe est vraiment excellente, j'ai hâte d'arriver le matin.",EQUIPE,POSITIF
 "Mes collègues sont toujours prêts à donner un coup de main quand quelqu'un est en difficulté.",EQUIPE,POSITIF
 "On célèbre les succès collectifs, c'est rare et ça compte vraiment pour la motivation.",EQUIPE,POSITIF
 "Il y a une vraie solidarité dans l'équipe, on se soutient même dans les moments difficiles.",EQUIPE,POSITIF
 "Le dernier team building nous a vraiment rapprochés, l'ambiance a changé positivement.",EQUIPE,POSITIF
+"On rit ensemble, on se soutient, c'est une équipe où j'ai vraiment envie de m'investir.",EQUIPE,POSITIF
+"La diversité de profils dans l'équipe est une vraie richesse, on apprend les uns des autres.",EQUIPE,POSITIF
+"On se fait des retours honnêtes et bienveillants, ça tire tout le monde vers le haut.",EQUIPE,POSITIF
+"L'entraide est naturelle dans notre équipe, personne ne laisse quelqu'un se noyer seul.",EQUIPE,POSITIF
+"La bonne humeur collective est vraiment contagieuse, ça aide à traverser les moments difficiles.",EQUIPE,POSITIF
 "Je suis payé en dessous du marché alors que je suis là depuis 5 ans, c'est injuste.",SALAIRE,NEGATIF
 "On m'a promis une augmentation l'année dernière et elle n'est jamais arrivée.",SALAIRE,NEGATIF
 "Mon nouveau collègue est payé plus que moi pour le même poste, j'ai du mal à l'accepter.",SALAIRE,NEGATIF
@@ -104,29 +216,67 @@ texte,theme,sentiment
 "Je pourrais gagner 20% de plus ailleurs pour le même travail, ce n'est pas normal.",SALAIRE,NEGATIF
 "Les avantages sont bien sur le papier mais dans la pratique il est très difficile d'en bénéficier.",SALAIRE,NEGATIF
 "La politique de rémunération n'a pas bougé depuis des années malgré les demandes répétées.",SALAIRE,NEGATIF
+"Mon salaire n'a pas été révisé depuis mon embauche malgré mes prises de responsabilités.",SALAIRE,NEGATIF
+"Les tickets restaurant ont été supprimés sans contrepartie, c'est une perte sèche.",SALAIRE,NEGATIF
+"L'intéressement est très faible comparé à ce que d'autres entreprises du secteur proposent.",SALAIRE,NEGATIF
+"On n'a eu aucune revalorisation cette année alors que les résultats de la boîte sont bons.",SALAIRE,NEGATIF
+"Je dois négocier durement chaque année pour obtenir une augmentation pourtant méritée.",SALAIRE,NEGATIF
+"Les critères d'attribution des bonus ne sont jamais partagés, c'est très frustrant.",SALAIRE,NEGATIF
+"J'ai l'impression que la négociation à l'embauche détermine tout pour toujours, sans réévaluation.",SALAIRE,NEGATIF
+"Les augmentations sont trop faibles pour compenser l'inflation, on perd du pouvoir d'achat chaque année.",SALAIRE,NEGATIF
+"Il n'y a aucune équité entre les équipes sur la rémunération, tout dépend du manager.",SALAIRE,NEGATIF
+"La grille salariale est opaque et personne ne peut savoir si sa rémunération est juste.",SALAIRE,NEGATIF
+"Le 13e mois a été supprimé sans concertation, c'est une décision très mal vécue.",SALAIRE,NEGATIF
+"Je gagne moins que mes homologues d'autres boîtes pour un poste équivalent, c'est démotivant.",SALAIRE,NEGATIF
 "La rémunération est dans la moyenne du marché, ni vraiment bonne ni mauvaise.",SALAIRE,NEUTRE
 "Le salaire est correct pour ce secteur, les avantages compensent ce qui manque en fixe.",SALAIRE,NEUTRE
-"Je suis globalement satisfait de ma rémunération par rapport à mes responsabilités.",SALAIRE,POSITIF
+"Je suis globalement satisfait de ma rémunération par rapport à mes responsabilités.",SALAIRE,NEUTRE
+"La rémunération est honnête sans être exceptionnelle, dans la norme du secteur.",SALAIRE,NEUTRE
+"Le fixe est correct, les variables sont moins prévisibles mais ça s'équilibre.",SALAIRE,NEUTRE
 "J'ai eu une augmentation surprise cette année pour récompenser mon implication, c'était très apprécié.",SALAIRE,POSITIF
 "Le package global est vraiment attractif : salaire, intéressement, télétravail et avantages.",SALAIRE,POSITIF
 "L'entreprise est transparente sur sa politique salariale, on sait sur quoi on est évalués.",SALAIRE,POSITIF
+"Ma rémunération a évolué régulièrement en fonction de mes résultats, c'est motivant.",SALAIRE,POSITIF
+"Les avantages en nature sont généreux et compensent largement le fixe.",SALAIRE,POSITIF
+"L'intéressement cette année a vraiment récompensé les efforts collectifs, on se sent concernés.",SALAIRE,POSITIF
+"Ma rémunération est au-dessus du marché pour mon niveau, je me sens vraiment valorisé.",SALAIRE,POSITIF
+"Le processus d'augmentation est clair et transparent, je sais exactement ce que j'ai à faire.",SALAIRE,POSITIF
 "On nous a retiré le télétravail sans aucune justification, c'est très mal vécu.",REMOTE,NEGATIF
 "Je passe 3 heures par jour dans les transports alors que mon poste se fait très bien à distance.",REMOTE,NEGATIF
 "Mon manager nous envoie des messages à 22h et s'attend à ce qu'on réponde immédiatement.",REMOTE,NEGATIF
 "La politique de télétravail change selon les managers, c'est très inégal selon les équipes.",REMOTE,NEGATIF
 "J'ai été convoqué pour un rappel à l'ordre parce que j'ai refusé de répondre le weekend.",REMOTE,NEGATIF
-"On doit être au bureau 5 jours sur 5 alors que tous nos réunions sont en visio de toute façon.",REMOTE,NEGATIF
+"On doit être au bureau 5 jours sur 5 alors que toutes nos réunions sont en visio de toute façon.",REMOTE,NEGATIF
 "Je reçois des emails de travail pendant mes congés et il est attendu que j'y réponde.",REMOTE,NEGATIF
 "Les règles du télétravail ne sont nulle part écrites, chaque manager fait ce qu'il veut.",REMOTE,NEGATIF
 "L'open space est bruyant et stressant, mais le télétravail n'est accordé qu'un seul jour.",REMOTE,NEGATIF
 "Le retour imposé au bureau a vraiment dégradé mon équilibre de vie, c'est difficile.",REMOTE,NEGATIF
+"On m'a refusé le télétravail sans raison valable alors que d'autres y ont accès.",REMOTE,NEGATIF
+"Mon manager attend qu'on soit disponibles aussi le soir, la frontière pro/perso est floue.",REMOTE,NEGATIF
+"On est surveillés à distance via les logs de connexion, je me sens espionné.",REMOTE,NEGATIF
+"Le matériel fourni pour le télétravail est insuffisant, je dois utiliser mon équipement perso.",REMOTE,NEGATIF
+"La flexibilité promise à l'embauche a totalement disparu depuis le retour au bureau imposé.",REMOTE,NEGATIF
+"Mon manager m'a reproché de ne pas répondre à 20h, alors que ça n'a jamais été dans mon contrat.",REMOTE,NEGATIF
+"Je ne peux pas télétravailler malgré un trajet de plus de 2h par jour, c'est épuisant.",REMOTE,NEGATIF
+"Les réunions sont systématiquement placées le vendredi après-midi, ça détruit le week-end.",REMOTE,NEGATIF
+"Il n'y a aucune charte de déconnexion et les messages le soir sont normalisés.",REMOTE,NEGATIF
+"L'entreprise demande une présence physique permanente sans que ça ait de sens.",REMOTE,NEGATIF
 "On peut télétravailler mais c'est un peu mal vu par la direction.",REMOTE,NEUTRE
 "Le télétravail est possible mais la politique pourrait être plus claire et formalisée.",REMOTE,NEUTRE
+"On a deux jours de télétravail, c'est acceptable même si j'en voudrais un peu plus.",REMOTE,NEUTRE
+"La politique hybride est en place mais son application reste inégale.",REMOTE,NEUTRE
+"Le télétravail est toléré mais pas vraiment encouragé.",REMOTE,NEUTRE
+"La politique de flex est correcte mais manque encore de clarté sur les cas particuliers.",REMOTE,NEUTRE
+"On a droit au télétravail mais les équipements à domicile ne sont pas aidés.",REMOTE,NEUTRE
 "J'ai un bon équilibre entre les jours au bureau et les jours à la maison.",REMOTE,POSITIF
 "La flexibilité sur les horaires et le lieu de travail change vraiment ma qualité de vie.",REMOTE,POSITIF
 "Mon entreprise me fait vraiment confiance pour organiser mon temps, c'est très appréciable.",REMOTE,POSITIF
 "On peut déconnecter sereinement le soir, personne ne t'envoie de messages après 18h.",REMOTE,POSITIF
 "La politique hybride est claire et respectée par tous, c'est un vrai point fort de l'entreprise.",REMOTE,POSITIF
+"Je peux adapter mes horaires à ma vie de famille, c'est un luxe que j'apprécie énormément.",REMOTE,POSITIF
+"Le droit à la déconnexion est vraiment respecté ici, c'est rare et très précieux.",REMOTE,POSITIF
+"On peut choisir ses jours de présence librement, c'est une vraie marque de confiance.",REMOTE,POSITIF
+"L'entreprise a fourni tout l'équipement pour le télétravail, c'est très appréciable.",REMOTE,POSITIF
 "Je n'arrive plus à dormir tellement je pense au travail le soir, c'est épuisant.",WELLBEING,NEGATIF
 "J'ai consulté un médecin pour du stress lié au travail, c'est la première fois que ça m'arrive.",WELLBEING,NEGATIF
 "Certains de mes collègues ont craqué cette année, et personne ne semble s'en préoccuper.",WELLBEING,NEGATIF
@@ -137,11 +287,32 @@ texte,theme,sentiment
 "Le programme santé existe sur le papier mais il est inaccessible dans la pratique quotidienne.",WELLBEING,NEGATIF
 "La pression est tellement forte que plusieurs personnes de l'équipe pleurent au bureau.",WELLBEING,NEGATIF
 "J'ai perdu le plaisir de faire mon métier à cause de la façon dont les choses sont gérées.",WELLBEING,NEGATIF
+"Je n'ose plus prendre de congés tellement j'ai peur du retard que ça va créer.",WELLBEING,NEGATIF
+"Mon anxiété au travail a beaucoup augmenté cette année, je ne sais pas comment tenir.",WELLBEING,NEGATIF
+"Je rentre chez moi irritable chaque soir, ma vie personnelle en pâtit.",WELLBEING,NEGATIF
+"L'ambiance anxiogène au bureau affecte tout le monde mais personne n'en parle ouvertement.",WELLBEING,NEGATIF
+"Je me force à venir chaque matin, la motivation s'est complètement éteinte.",WELLBEING,NEGATIF
+"J'ai l'impression d'être un numéro, pas une personne, dans cette entreprise.",WELLBEING,NEGATIF
+"Les arrêts maladie se multiplient dans l'équipe, c'est un signe qui ne trompe pas.",WELLBEING,NEGATIF
+"On est censés faire de la cohésion mais personne ne va bien en ce moment.",WELLBEING,NEGATIF
+"Je souffre en silence depuis des mois car je ne sais pas à qui en parler.",WELLBEING,NEGATIF
+"Le burn-out me guette, je le sens mais je ne sais pas comment m'en sortir.",WELLBEING,NEGATIF
+"La culture de la performance à tout prix détruit la santé mentale des gens.",WELLBEING,NEGATIF
+"Je n'ai plus aucun plaisir dans mon travail depuis le changement d'organisation.",WELLBEING,NEGATIF
 "Je me sens un peu fatigué mais c'est passager, ça va mieux selon les périodes.",WELLBEING,NEUTRE
 "Le niveau de stress est correct dans l'ensemble, avec quelques pics lors des clôtures.",WELLBEING,NEUTRE
 "L'entreprise fait des efforts sur le bien-être même si tout n'est pas encore parfait.",WELLBEING,NEUTRE
+"Mon niveau d'énergie varie selon les périodes, c'est assez normal dans ce métier.",WELLBEING,NEUTRE
+"Je ne souffre pas vraiment au travail mais je ne m'y épanouis pas non plus.",WELLBEING,NEUTRE
+"Le stress est présent mais gérable, je n'ai pas atteint mes limites.",WELLBEING,NEUTRE
+"Je tiens le coup, ça n'est pas idéal mais ce n'est pas insupportable non plus.",WELLBEING,NEUTRE
 "On a accès à une ligne d'écoute psychologique et c'est vraiment rassurant de l'avoir.",WELLBEING,POSITIF
 "Les initiatives bien-être sont nombreuses et vraiment accessibles, pas juste de la com.",WELLBEING,POSITIF
 "Mon manager s'inquiète de ma charge et me le dit, c'est rare et je l'apprécie vraiment.",WELLBEING,POSITIF
 "Je ressors du travail avec de l'énergie la plupart des soirs, c'est un bon signe.",WELLBEING,POSITIF
 "L'ambiance détendue et bienveillante contribue vraiment à mon bien-être au quotidien.",WELLBEING,POSITIF
+"On a des séances de sport offertes par l'entreprise et j'y vais régulièrement, c'est top.",WELLBEING,POSITIF
+"Je me sens vraiment bien dans mon poste, j'arrive le matin avec envie de travailler.",WELLBEING,POSITIF
+"L'entreprise a mis en place un accompagnement psychologique et je l'ai utilisé, c'est précieux.",WELLBEING,POSITIF
+"Mon manager détecte les signaux de fatigue et agit avant que ça devienne critique.",WELLBEING,POSITIF
+"On dispose de vraies plages de décompression dans la semaine, c'est bien pensé.",WELLBEING,POSITIF

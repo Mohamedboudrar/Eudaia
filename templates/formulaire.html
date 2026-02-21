@@ -150,18 +150,17 @@
 <body>
   <div class="card">
     <div class="header">
-      <div class="icon">💬</div>
-      <h1>Comment ça se passe pour toi ?</h1>
-      <p>Exprime-toi librement sur ton quotidien au travail.<br>
-         Tes retours aident à améliorer les conditions de travail pour tous.</p>
-      <span class="badge-anon">🔒 100% anonyme — ton texte n'est jamais stocké</span>
+      <h1>Votre ressenti</h1>
+      <p>Partagez vos observations sur votre quotidien professionnel.<br>
+         Vos retours contribuent à l'amélioration continue des conditions de travail.</p>
+      <span class="badge-anon">100% Anonyme — vos données ne sont pas enregistrées</span>
     </div>
 
     <form action="/soumettre" method="POST" id="formQvt">
 
       <!-- Verbatim libre -->
       <div class="form-group">
-        <label for="verbatim">✍️ Décris ce que tu vis en ce moment au travail</label>
+        <label for="verbatim">Décrivez votre situation actuelle</label>
         <textarea
           id="verbatim"
           name="verbatim"
@@ -174,7 +173,7 @@
 
       <!-- Note 1 à 5 -->
       <div class="form-group">
-        <label class="note-label">⭐ En ce moment, comment tu te sens globalement ? <span style="color:#999;font-weight:400">(optionnel)</span></label>
+        <label class="note-label">Bien-être global <span style="color:#999;font-weight:400">(optionnel)</span></label>
         <div class="note-options">
           <div>
             <input type="radio" name="note" id="n1" value="1">
@@ -198,20 +197,20 @@
           </div>
         </div>
         <div class="note-libelles">
-          <span>Très mal</span>
+          <span>Très difficile</span>
           <span>Très bien</span>
         </div>
       </div>
 
       <button type="submit" class="btn-submit">
-        Envoyer mon retour →
+        Envoyer mon retour
       </button>
     </form>
 
     <div class="footer-info">
-      Tes données sont traitées automatiquement et agrégées.<br>
-      Les résultats ne sont affichés que si 5+ personnes ont répondu sur le même sujet.<br>
-      <a href="/dashboard">Accès RH →</a>
+      Vos données sont traitées de façon anonyme et agrégée.<br>
+      Les résultats ne sont affichés que si 5+ réponses minimum par thème.<br>
+      <a href="/dashboard">Accès tableau de bord RH</a>
     </div>
   </div>
 
@@ -228,7 +227,7 @@
       if (ta.value.trim().length < 10) {
         e.preventDefault();
         ta.style.borderColor = '#e53935';
-        ta.placeholder = '⚠️ Écris au moins quelques mots...';
+        ta.placeholder = 'Veuillez écrire au moins quelques mots...';
       }
     });
   </script>
