@@ -1,29 +1,40 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mon ressenti — QVT</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
   <style>
     :root {
-      --ink:      #0d0d0d;
+      --ink: #0d0d0d;
       --ink-soft: #4a4a4a;
       --ink-mute: #9a9a9a;
-      --cream:    #faf9f6;
-      --white:    #ffffff;
-      --line:     #e8e5df;
-      --gold:     #c9a96e;
-      --gold-lt:  #f0e8d8;
-      --green:    #2d6a4f;
+      --cream: #faf9f6;
+      --white: #ffffff;
+      --line: #e8e5df;
+      --gold: #c9a96e;
+      --gold-lt: #f0e8d8;
+      --green: #2d6a4f;
       --green-lt: #e8f5ee;
-      --radius:   3px;
+      --radius: 3px;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+    }
 
     body {
       font-family: 'DM Sans', sans-serif;
@@ -40,10 +51,11 @@
     /* ── Background texture ── */
     body::before {
       content: '';
-      position: fixed; inset: 0;
+      position: fixed;
+      inset: 0;
       background:
-        radial-gradient(ellipse 80% 60% at 15% 20%, rgba(201,169,110,0.07) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 80% at 85% 80%, rgba(45,106,79,0.05) 0%, transparent 60%);
+        radial-gradient(ellipse 80% 60% at 15% 20%, rgba(201, 169, 110, 0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 85% 80%, rgba(45, 106, 79, 0.05) 0%, transparent 60%);
       pointer-events: none;
       z-index: 0;
     }
@@ -52,7 +64,8 @@
     body::after {
       content: '';
       position: fixed;
-      top: 0; left: 50%;
+      top: 0;
+      left: 50%;
       transform: translateX(-50%);
       width: 1px;
       height: 100%;
@@ -64,7 +77,8 @@
 
     /* ── Main card ── */
     .card {
-      position: relative; z-index: 1;
+      position: relative;
+      z-index: 1;
       background: var(--white);
       border: 1px solid var(--line);
       border-radius: 2px;
@@ -72,15 +86,19 @@
       max-width: 540px;
       width: 100%;
       box-shadow:
-        0 1px 2px rgba(0,0,0,.04),
-        0 8px 32px rgba(0,0,0,.06),
-        0 32px 80px rgba(0,0,0,.05);
-      animation: cardReveal .7s cubic-bezier(.16,1,.3,1) forwards;
+        0 1px 2px rgba(0, 0, 0, .04),
+        0 8px 32px rgba(0, 0, 0, .06),
+        0 32px 80px rgba(0, 0, 0, .05);
+      animation: cardReveal .7s cubic-bezier(.16, 1, .3, 1) forwards;
       opacity: 0;
       transform: translateY(20px);
     }
+
     @keyframes cardReveal {
-      to { opacity: 1; transform: translateY(0); }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* ── Gold top accent ── */
@@ -106,16 +124,27 @@
       margin-bottom: 24px;
       animation: fadeUp .5s .1s both;
     }
+
+    .header-ornament img {
+      height: 52px;
+      width: auto;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+
     .ornament-line {
       height: 1px;
       width: 40px;
       background: linear-gradient(90deg, transparent, var(--gold));
     }
+
     .ornament-line.right {
       background: linear-gradient(90deg, var(--gold), transparent);
     }
+
     .ornament-diamond {
-      width: 6px; height: 6px;
+      width: 6px;
+      height: 6px;
       background: var(--gold);
       transform: rotate(45deg);
     }
@@ -130,6 +159,7 @@
       margin-bottom: 10px;
       animation: fadeUp .5s .15s both;
     }
+
     .header h1 em {
       font-style: italic;
       color: var(--gold);
@@ -158,18 +188,30 @@
       letter-spacing: 0.04em;
       text-transform: uppercase;
       animation: fadeUp .5s .25s both;
-      border: 1px solid rgba(45,106,79,.15);
+      border: 1px solid rgba(45, 106, 79, .15);
     }
+
     .badge-anon::before {
       content: '';
-      width: 6px; height: 6px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: var(--green);
       animation: pulse-dot 2s ease-in-out infinite;
     }
+
     @keyframes pulse-dot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50%       { opacity: .5; transform: scale(.7); }
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: .5;
+        transform: scale(.7);
+      }
     }
 
     /* ── Form body ── */
@@ -181,9 +223,18 @@
       margin-bottom: 32px;
       animation: fadeUp .5s both;
     }
-    .form-group:nth-child(1) { animation-delay: .3s; }
-    .form-group:nth-child(2) { animation-delay: .4s; }
-    .form-group:nth-child(3) { animation-delay: .5s; }
+
+    .form-group:nth-child(1) {
+      animation-delay: .3s;
+    }
+
+    .form-group:nth-child(2) {
+      animation-delay: .4s;
+    }
+
+    .form-group:nth-child(3) {
+      animation-delay: .5s;
+    }
 
     /* ── Label ── */
     label.field-label {
@@ -198,6 +249,7 @@
       letter-spacing: 0.1em;
       margin-bottom: 12px;
     }
+
     label.field-label .optional {
       font-size: 0.68rem;
       color: var(--ink-mute);
@@ -210,6 +262,7 @@
     .textarea-wrap {
       position: relative;
     }
+
     textarea {
       width: 100%;
       padding: 18px 20px;
@@ -225,12 +278,14 @@
       line-height: 1.7;
       background: var(--cream);
     }
+
     textarea:focus {
       outline: none;
       border-color: var(--gold);
       background: var(--white);
-      box-shadow: 0 0 0 3px rgba(201,169,110,.12);
+      box-shadow: 0 0 0 3px rgba(201, 169, 110, .12);
     }
+
     textarea::placeholder {
       color: var(--ink-mute);
       font-style: italic;
@@ -244,7 +299,11 @@
       margin-top: 7px;
       letter-spacing: 0.02em;
     }
-    .char-count span { color: var(--ink-soft); font-weight: 500; }
+
+    .char-count span {
+      color: var(--ink-soft);
+      font-weight: 500;
+    }
 
     /* ── Rating stars / emoji ── */
     .note-label {
@@ -259,6 +318,7 @@
       letter-spacing: 0.1em;
       margin-bottom: 14px;
     }
+
     .note-label .optional {
       font-size: 0.68rem;
       color: var(--ink-mute);
@@ -273,9 +333,13 @@
       justify-content: space-between;
     }
 
-    .note-options input[type="radio"] { display: none; }
+    .note-options input[type="radio"] {
+      display: none;
+    }
 
-    .note-options > div { flex: 1; }
+    .note-options>div {
+      flex: 1;
+    }
 
     .note-options label {
       display: block;
@@ -284,7 +348,7 @@
       border: 1px solid var(--line);
       border-radius: var(--radius);
       cursor: pointer;
-      transition: all .2s cubic-bezier(.34,1.56,.64,1);
+      transition: all .2s cubic-bezier(.34, 1.56, .64, 1);
       color: var(--ink-mute);
       background: var(--cream);
       position: relative;
@@ -293,7 +357,8 @@
 
     .note-options label::before {
       content: '';
-      position: absolute; inset: 0;
+      position: absolute;
+      inset: 0;
       background: var(--gold-lt);
       opacity: 0;
       transition: opacity .2s;
@@ -303,9 +368,10 @@
       display: block;
       font-size: 1.5rem;
       margin-bottom: 5px;
-      transition: transform .2s cubic-bezier(.34,1.56,.64,1);
+      transition: transform .2s cubic-bezier(.34, 1.56, .64, 1);
       position: relative;
     }
+
     .note-options label .chiffre {
       font-size: 0.7rem;
       font-weight: 500;
@@ -318,21 +384,34 @@
       border-color: var(--gold);
       transform: translateY(-2px);
     }
+
     .note-options label:hover .emoji {
       transform: scale(1.15);
     }
-    .note-options label:hover::before { opacity: .5; }
 
-    .note-options input:checked + label {
+    .note-options label:hover::before {
+      opacity: .5;
+    }
+
+    .note-options input:checked+label {
       border-color: var(--gold);
       background: var(--white);
       color: var(--ink);
       transform: translateY(-3px);
-      box-shadow: 0 4px 16px rgba(201,169,110,.2);
+      box-shadow: 0 4px 16px rgba(201, 169, 110, .2);
     }
-    .note-options input:checked + label::before { opacity: 1; }
-    .note-options input:checked + label .emoji { transform: scale(1.1); }
-    .note-options input:checked + label .chiffre { color: var(--gold); }
+
+    .note-options input:checked+label::before {
+      opacity: 1;
+    }
+
+    .note-options input:checked+label .emoji {
+      transform: scale(1.1);
+    }
+
+    .note-options input:checked+label .chiffre {
+      color: var(--gold);
+    }
 
     .note-libelles {
       display: flex;
@@ -362,20 +441,30 @@
       overflow: hidden;
       transition: background .25s, transform .15s;
     }
+
     .btn-submit::before {
       content: '';
       position: absolute;
-      top: 0; left: -100%;
-      width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(201,169,110,.18), transparent);
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(201, 169, 110, .18), transparent);
       transition: left .5s;
     }
+
     .btn-submit:hover {
       background: #1a1a1a;
       transform: translateY(-1px);
     }
-    .btn-submit:hover::before { left: 100%; }
-    .btn-submit:active { transform: translateY(0); }
+
+    .btn-submit:hover::before {
+      left: 100%;
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+    }
 
     /* ── Footer ── */
     .footer-info {
@@ -388,12 +477,14 @@
       font-weight: 300;
       animation: fadeUp .5s .55s both;
     }
+
     .footer-info a {
       color: var(--ink-soft);
       text-decoration: none;
       border-bottom: 1px solid var(--line);
       transition: color .2s, border-color .2s;
     }
+
     .footer-info a:hover {
       color: var(--gold);
       border-color: var(--gold);
@@ -401,8 +492,15 @@
 
     /* ── Animations ── */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* ── Focus visible accessibility ── */
@@ -412,6 +510,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <div class="card">
@@ -420,13 +519,11 @@
     <!-- Header -->
     <div class="header">
       <div class="header-ornament">
-        <span class="ornament-line"></span>
-        <span class="ornament-diamond"></span>
-        <span class="ornament-line right"></span>
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="EUDAIA Logo">
       </div>
       <h1>Votre <em>ressenti</em></h1>
       <p>Partagez vos observations sur votre quotidien professionnel.<br>
-         Vos retours contribuent à l'amélioration continue des conditions de travail.</p>
+        Vos retours contribuent à l'amélioration continue des conditions de travail.</p>
       <span class="badge-anon">100% Anonyme — vos données ne sont pas enregistrées</span>
     </div>
 
@@ -440,13 +537,9 @@
             Situation actuelle
           </label>
           <div class="textarea-wrap">
-            <textarea
-              id="verbatim"
-              name="verbatim"
+            <textarea id="verbatim" name="verbatim"
               placeholder="Décrivez librement votre quotidien professionnel, vos ressentis, vos préoccupations…"
-              maxlength="600"
-              required
-            ></textarea>
+              maxlength="600" required></textarea>
           </div>
           <div class="char-count"><span id="nbChar">0</span> / 600</div>
         </div>
@@ -512,7 +605,7 @@
     });
 
     // Empêche soumission si champ trop court (fonctionnalité inchangée)
-    document.getElementById('formQvt').addEventListener('submit', function(e) {
+    document.getElementById('formQvt').addEventListener('submit', function (e) {
       if (ta.value.trim().length < 10) {
         e.preventDefault();
         ta.style.borderColor = '#c0392b';
@@ -521,4 +614,5 @@
     });
   </script>
 </body>
+
 </html>

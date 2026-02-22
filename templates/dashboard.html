@@ -102,6 +102,12 @@
       background: linear-gradient(90deg, var(--gold), transparent);
     }
 
+    .logo-orn img {
+      height: 38px;
+      width: auto;
+      object-fit: contain;
+    }
+
     .lo-dim {
       width: 4px;
       height: 4px;
@@ -1179,11 +1185,9 @@
   <nav>
     <div class="nav-logo">
       <div class="logo-orn">
-        <span class="lo-line"></span>
-        <span class="lo-dim"></span>
-        <span class="lo-line r"></span>
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="EUDAIA Logo">
       </div>
-      QVT Agent
+      EUDAIA
     </div>
     <div class="nav-actions">
       {% if model_info %}
