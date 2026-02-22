@@ -73,8 +73,12 @@ _model_nb        = None   # Pipeline scikit-learn NB
 _model_zeroshot  = None   # Pipeline HuggingFace zero-shot
 
 # ── Configuration zero-shot ───────────────────────────────────────────────────
-# CamemBERT fine-tuné sur XNLI — meilleur choix pour le français natif
-ZEROSHOT_MODEL_NAME = "BaptisteDoyen/camembert-base-xnli"
+# Modèle multilingue robuste, compatible toutes versions de transformers récentes.
+# Remplace BaptisteDoyen/camembert-base-xnli (incompatible avec transformers >= 4.36)
+ZEROSHOT_MODEL_NAME = "joeddav/xlm-roberta-large-xnli"
+
+# Fallback si le modèle principal échoue
+ZEROSHOT_MODEL_FALLBACK = "cross-encoder/nli-MiniLM2-L6-H768"
 
 # Thèmes QVT pour le zero-shot : clé interne → description naturelle en français
 # Ces labels sont directement compris par le modèle, modifiables sans réentraînement
@@ -220,7 +224,8 @@ def _classifier_theme_tfidf(texte: str, model_type: str) -> tuple[str, float]:
 def _charger_zeroshot():
     """
     Charge le pipeline zero-shot HuggingFace au premier appel.
-    Téléchargement automatique (~440 MB) puis mise en cache locale.
+    Téléchargement automatique puis mise en cache locale.
+    Essaie d'abord ZEROSHOT_MODEL_NAME, puis ZEROSHOT_MODEL_FALLBACK en cas d'erreur.
     """
     global _model_zeroshot
     if _model_zeroshot is not None:
@@ -234,17 +239,30 @@ def _charger_zeroshot():
             "Installez-le avec : pip install transformers torch sentencepiece"
         )
 
-    print(f"⏳ Chargement du modèle zero-shot : {ZEROSHOT_MODEL_NAME}")
-    print(f"   (Premier appel : téléchargement ~440 MB → cache dans {CACHE_DIR})")
+    for model_name in [ZEROSHOT_MODEL_NAME, ZEROSHOT_MODEL_FALLBACK]:
+        try:
+            print(f"⏳ Chargement du modèle zero-shot : {model_name}")
+            print(f"   (Cache dans {CACHE_DIR})")
+            _model_zeroshot = pipeline(
+                task="zero-shot-classification",
+                model=model_name,
+                cache_dir=CACHE_DIR,
+                # device=0,  # Décommenter pour utiliser le GPU CUDA
+            )
+            print(f"✅ Modèle zero-shot chargé : {model_name}")
+            return _model_zeroshot
+        except Exception as e:
+            print(f"⚠️  Échec chargement {model_name} : {e}")
+            print(f"   → Tentative avec le modèle suivant...")
 
-    _model_zeroshot = pipeline(
-        task="zero-shot-classification",
-        model=ZEROSHOT_MODEL_NAME,
-        cache_dir=CACHE_DIR,
-        # device=0,  # Décommenter pour utiliser le GPU CUDA
+    raise RuntimeError(
+        "Impossible de charger un modèle zero-shot compatible.\n"
+        "Solutions :\n"
+        "  1. Mettre à jour transformers : pip install -U transformers\n"
+        "  2. Utiliser le moteur logistic à la place :\n"
+        "     curl -X POST http://localhost:5000/api/model/set/logistic\n"
+        "  OU supprimez le fichier models/active_model.txt pour revenir au défaut."
     )
-    print("✅ Modèle zero-shot chargé.")
-    return _model_zeroshot
 
 
 def _classifier_theme_zeroshot(texte: str) -> tuple[str, float]:
@@ -420,7 +438,13 @@ def analyser(texte: str) -> dict:
 
     # ── Classification du thème selon le moteur actif
     if moteur == "zeroshot":
-        theme, confiance = _classifier_theme_zeroshot(texte)
+        try:
+            theme, confiance = _classifier_theme_zeroshot(texte)
+        except Exception as e:
+            print(f"⚠️  Moteur zero-shot indisponible ({e})")
+            print("   → Bascule automatique sur 'logistic'")
+            _ecrire_modele_persistant("logistic")   # corrige le fichier persistant
+            theme, confiance = _classifier_theme_tfidf(texte, "logistic")
     else:
         theme, confiance = _classifier_theme_tfidf(texte, moteur)
 

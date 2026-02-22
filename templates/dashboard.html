@@ -5,338 +5,490 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard RH — QVT</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg:       #f4f5f9;
+      --surface:  #ffffff;
+      --navy:     #0f172a;
+      --navy2:    #1e293b;
+      --muted:    #64748b;
+      --border:   #e2e8f0;
+      --neg:      #ef4444;
+      --neu:      #f59e0b;
+      --pos:      #22c55e;
+      --accent:   #6366f1;
+      --radius:   14px;
+      --shadow:   0 2px 16px rgba(15,23,42,.07);
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #f0f2f8;
-      color: #1a1a2e;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--navy);
+      min-height: 100vh;
     }
 
     /* ── NAV ── */
     nav {
-      background: linear-gradient(135deg, #1a1a2e, #16213e);
-      color: white;
+      position: sticky; top: 0; z-index: 100;
+      background: var(--navy);
       padding: 0 32px;
       display: flex; align-items: center; justify-content: space-between;
-      height: 64px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      height: 60px;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.06);
     }
-    nav .logo { font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
-    nav .actions { display: flex; align-items: center; gap: 16px; }
-    nav a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem; }
-    nav a:hover { color: white; }
-    nav .btn-nav {
-      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
-      color: white; padding: 8px 18px; border-radius: 8px; font-size: 0.88rem;
-      text-decoration: none; transition: background 0.2s;
+    .nav-logo {
+      font-size: 1rem; font-weight: 700; color: white;
+      display: flex; align-items: center; gap: 10px; letter-spacing: -0.2px;
     }
-    nav .btn-nav:hover { background: rgba(255,255,255,0.2); }
+    .nav-logo .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .nav-link { color: rgba(255,255,255,.55); text-decoration: none; font-size: 0.875rem; transition: color .15s; }
+    .nav-link:hover { color: white; }
+    .nav-btn {
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
+      color: white; padding: 7px 16px; border-radius: 8px; font-size: 0.85rem;
+      text-decoration: none; font-family: inherit; cursor: pointer; transition: background .2s;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,.18); }
 
     /* ── LAYOUT ── */
-    .container { max-width: 1280px; margin: 0 auto; padding: 32px 24px; }
+    .container { max-width: 1360px; margin: 0 auto; padding: 32px 24px; }
 
-    /* ── HEADER DASHBOARD ── */
-    .dash-header {
-      display: flex; align-items: flex-start; justify-content: space-between;
-      margin-bottom: 32px; flex-wrap: wrap; gap: 16px;
+    /* ── PAGE HEADER ── */
+    .page-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px; flex-wrap: wrap; gap: 16px;
     }
-    .dash-header h1 { font-size: 1.6rem; font-weight: 700; }
-    .dash-header p  { color: #666; margin-top: 4px; font-size: 0.92rem; }
+    .page-header h1 {
+      font-size: 1.5rem; font-weight: 700; letter-spacing: -0.3px;
+    }
+    .page-header p { color: var(--muted); font-size: 0.9rem; margin-top: 3px; }
 
-    /* Sélecteur mois */
     .mois-select {
       display: flex; align-items: center; gap: 10px;
-      background: white; padding: 10px 16px; border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      background: var(--surface); padding: 9px 16px; border-radius: 10px;
+      box-shadow: var(--shadow); border: 1px solid var(--border);
     }
-    .mois-select label { font-size: 0.85rem; color: #666; font-weight: 600; }
+    .mois-select label { font-size: 0.8rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
     .mois-select select {
-      border: none; outline: none; font-size: 0.9rem;
-      color: #1a1a2e; font-weight: 600; background: transparent; cursor: pointer;
+      border: none; outline: none; font-size: 0.9rem; font-family: inherit;
+      color: var(--navy); font-weight: 600; background: transparent; cursor: pointer;
     }
 
-    /* ── CARTES KPI ── */
+    /* ── KPI GRID ── */
     .kpi-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px; margin-bottom: 32px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px; margin-bottom: 28px;
     }
-
     .kpi-card {
-      background: white; border-radius: 14px; padding: 24px 20px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-      border-left: 4px solid transparent;
-      transition: transform 0.2s;
+      background: var(--surface); border-radius: var(--radius); padding: 22px 20px;
+      box-shadow: var(--shadow); border: 1px solid var(--border);
+      border-top: 3px solid var(--kpi-accent, var(--accent));
+      transition: transform .2s;
     }
     .kpi-card:hover { transform: translateY(-2px); }
-    .kpi-card .kpi-icon { font-size: 1.8rem; margin-bottom: 10px; }
-    .kpi-card .kpi-val  { font-size: 2rem; font-weight: 800; color: #1a1a2e; }
-    .kpi-card .kpi-label { font-size: 0.82rem; color: #888; margin-top: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-    .kpi-card .kpi-sub  { font-size: 0.82rem; color: #aaa; margin-top: 6px; }
+    .kpi-icon { font-size: 1.5rem; margin-bottom: 10px; }
+    .kpi-val  { font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
+    .kpi-label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-top: 4px; }
+    .kpi-sub   { font-size: 0.78rem; color: #94a3b8; margin-top: 6px; }
+    .kpi-card.ok      { --kpi-accent: var(--pos); }
+    .kpi-card.warning { --kpi-accent: var(--neu); }
+    .kpi-card.danger  { --kpi-accent: var(--neg); }
+    .kpi-card.info    { --kpi-accent: var(--accent); }
 
-    .kpi-card.ok       { border-left-color: #4caf50; }
-    .kpi-card.warning  { border-left-color: #ff9800; }
-    .kpi-card.danger   { border-left-color: #f44336; }
-    .kpi-card.info     { border-left-color: #667eea; }
-
-    /* ── SECTION TITRE ── */
+    /* ── SECTION TITLE ── */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 18px;
+    }
     .section-title {
-      font-size: 1.1rem; font-weight: 700; color: #1a1a2e;
-      margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+      font-size: 1rem; font-weight: 700; color: var(--navy);
+      display: flex; align-items: center; gap: 8px;
     }
 
-    /* ── GRILLE THÈMES ── */
+    /* ── BURNOUT BANNER ── */
+    .burnout-banner {
+      background: linear-gradient(135deg, #dc2626, #9f1239);
+      color: white; border-radius: var(--radius); padding: 22px 28px;
+      margin-bottom: 28px; display: flex; align-items: center; gap: 20px;
+      box-shadow: 0 4px 20px rgba(220,38,38,.25);
+      animation: pulse-border 2s ease-in-out infinite;
+    }
+    @keyframes pulse-border {
+      0%, 100% { box-shadow: 0 4px 20px rgba(220,38,38,.25); }
+      50%       { box-shadow: 0 4px 28px rgba(220,38,38,.45); }
+    }
+    .burnout-banner .bi { font-size: 2.4rem; }
+    .burnout-banner h3  { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+    .burnout-banner p   { font-size: 0.86rem; opacity: .88; line-height: 1.6; }
+
+    /* ── THEMES GRID ── */
     .themes-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
       gap: 20px; margin-bottom: 36px;
     }
 
     .theme-card {
-      background: white; border-radius: 14px; padding: 22px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-      border-top: 4px solid var(--theme-color);
-      transition: box-shadow 0.2s;
+      background: var(--surface); border-radius: var(--radius); padding: 0;
+      box-shadow: var(--shadow); border: 1px solid var(--border);
+      overflow: hidden; transition: box-shadow .2s;
     }
-    .theme-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.1); }
+    .theme-card:hover { box-shadow: 0 8px 28px rgba(15,23,42,.11); }
 
-    .theme-header {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+    .theme-card-top {
+      padding: 16px 20px 0;
+      border-left: 4px solid var(--t-color, #888);
+    }
+    .theme-card-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 14px;
     }
     .theme-name {
-      font-weight: 700; font-size: 1rem; color: #1a1a2e;
-      display: flex; align-items: center; gap: 8px;
+      font-weight: 700; font-size: 0.97rem;
+      display: flex; align-items: center; gap: 7px;
     }
     .urgence-badge {
-      font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 20px;
     }
-    .urgence-badge.critique { background: #fdecea; color: #c62828; }
-    .urgence-badge.haute    { background: #fff3e0; color: #e65100; }
-    .urgence-badge.vigilance{ background: #fffde7; color: #f57f17; }
-    .urgence-badge.ok       { background: #e8f5e9; color: #2e7d32; }
+    .urgence-badge.critique  { background: #fee2e2; color: #991b1b; }
+    .urgence-badge.haute     { background: #ffedd5; color: #c2410c; }
+    .urgence-badge.vigilance { background: #fef9c3; color: #854d0e; }
+    .urgence-badge.ok        { background: #dcfce7; color: #166534; }
 
-    /* Barres */
-    .barre-label { display: flex; justify-content: space-between; font-size: 0.8rem; color: #888; margin-bottom: 4px; }
-    .barre-bg { background: #f0f0f0; border-radius: 99px; height: 10px; overflow: hidden; margin-bottom: 8px; }
-    .barre-fill { height: 100%; border-radius: 99px; transition: width 0.8s ease; }
-    .barre-fill.negatif { background: #f44336; }
-    .barre-fill.neutre  { background: #ff9800; }
-    .barre-fill.positif { background: #4caf50; }
-
-    .theme-meta {
-      display: flex; justify-content: space-between; font-size: 0.8rem; color: #999; margin-top: 10px;
+    /* Donut chart area */
+    .theme-chart-row {
+      display: flex; align-items: center; gap: 16px;
+      padding: 0 20px 16px;
+      border-left: 4px solid var(--t-color, #888);
     }
-    .theme-meta strong { color: #555; }
-
-    /* ── ALERTE BURNOUT ── */
-    .burnout-alerte {
-      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-      color: white; border-radius: 14px; padding: 24px 28px;
-      margin-bottom: 32px; display: flex; align-items: center; gap: 20px;
-      box-shadow: 0 4px 20px rgba(238, 90, 36, 0.3);
+    .chart-wrap { width: 100px; height: 100px; flex-shrink: 0; position: relative; }
+    .chart-center-label {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      pointer-events: none;
     }
-    .burnout-alerte .alerte-icon { font-size: 2.8rem; }
-    .burnout-alerte h3 { font-size: 1.1rem; margin-bottom: 4px; }
-    .burnout-alerte p  { font-size: 0.88rem; opacity: 0.9; line-height: 1.5; }
+    .chart-center-pct  { font-size: 1.1rem; font-weight: 800; line-height: 1; }
+    .chart-center-sub  { font-size: 0.6rem; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+
+    .chart-legend { flex: 1; }
+    .legend-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 5px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.82rem;
+    }
+    .legend-row:last-child { border-bottom: none; }
+    .legend-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .legend-name { display: flex; align-items: center; gap: 7px; color: #475569; }
+    .legend-val  { font-weight: 700; color: var(--navy); font-family: 'DM Mono', monospace; font-size: 0.8rem; }
+
+    .theme-meta-row {
+      display: flex; justify-content: space-between;
+      padding: 10px 20px;
+      background: #f8fafc;
+      font-size: 0.78rem; color: var(--muted);
+    }
+    .theme-meta-row strong { color: var(--navy); }
+
+    /* ── SYNTHÈSE LLM ── */
+    .synthese-panel {
+      background: var(--surface); border-radius: var(--radius);
+      box-shadow: var(--shadow); border: 1px solid var(--border);
+      margin-bottom: 36px; overflow: hidden;
+    }
+    .synthese-header {
+      background: linear-gradient(135deg, var(--navy), var(--navy2));
+      color: white; padding: 20px 28px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    }
+    .synthese-title {
+      font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 9px;
+    }
+    .synthese-meta { font-size: 0.78rem; opacity: .6; margin-top: 3px; }
+    .btn-generate {
+      background: var(--accent); color: white; border: none; padding: 10px 22px;
+      border-radius: 9px; font-size: 0.875rem; font-weight: 600; cursor: pointer;
+      font-family: inherit; display: flex; align-items: center; gap: 8px;
+      transition: opacity .2s, transform .1s;
+    }
+    .btn-generate:hover { opacity: .88; transform: translateY(-1px); }
+    .btn-generate:active { transform: translateY(0); }
+    .btn-generate:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-generate .spinner {
+      width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3);
+      border-top-color: white; border-radius: 50%;
+      animation: spin .6s linear infinite; display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .synthese-body { padding: 28px; }
+    .synthese-placeholder {
+      text-align: center; padding: 48px 20px; color: #94a3b8;
+    }
+    .synthese-placeholder .ph-icon { font-size: 2.8rem; margin-bottom: 12px; }
+    .synthese-placeholder p { font-size: 0.9rem; line-height: 1.6; }
+
+    .synthese-content { display: none; }
+    .synthese-content.visible { display: block; }
+
+    .synthese-section { margin-bottom: 24px; }
+    .synthese-section h3 {
+      font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .7px;
+      color: var(--muted); margin-bottom: 12px; padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .synthese-text {
+      font-size: 0.93rem; line-height: 1.75; color: #334155;
+    }
+
+    .pill-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill {
+      padding: 5px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 600;
+    }
+    .pill.danger   { background: #fee2e2; color: #991b1b; }
+    .pill.warning  { background: #ffedd5; color: #9a3412; }
+    .pill.success  { background: #dcfce7; color: #14532d; }
+
+    .action-list { list-style: none; padding: 0; margin-top: 10px; }
+    .action-list li {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 9px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.88rem; color: #334155;
+    }
+    .action-list li:last-child { border-bottom: none; }
+    .action-list li .num {
+      background: var(--accent); color: white; border-radius: 50%;
+      width: 20px; height: 20px; font-size: 0.7rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+    }
+
+    .synthese-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 28px; background: #f8fafc; border-top: 1px solid var(--border);
+      font-size: 0.78rem; color: #94a3b8; flex-wrap: wrap; gap: 8px;
+    }
+    .synthese-footer strong { color: var(--muted); }
+    .btn-copy {
+      background: none; border: 1px solid var(--border); color: var(--muted);
+      padding: 5px 12px; border-radius: 6px; font-size: 0.78rem; cursor: pointer;
+      font-family: inherit; transition: background .2s;
+    }
+    .btn-copy:hover { background: var(--border); }
+
+    /* Streaming cursor */
+    .cursor { display: inline-block; width: 2px; height: 1em; background: var(--accent); margin-left: 2px; animation: blink .7s step-end infinite; vertical-align: text-bottom; }
+    @keyframes blink { 50% { opacity: 0; } }
 
     /* ── RECOMMANDATIONS ── */
     .reco-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-      gap: 22px; margin-bottom: 36px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(370px, 1fr));
+      gap: 20px; margin-bottom: 36px;
     }
-
     .reco-card {
-      background: white; border-radius: 14px; overflow: hidden;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      background: var(--surface); border-radius: var(--radius); overflow: hidden;
+      box-shadow: var(--shadow); border: 1px solid var(--border);
     }
-
-    .reco-header {
-      padding: 18px 22px;
-      background: var(--reco-color);
+    .reco-card-top {
+      padding: 16px 22px;
+      background: var(--r-color, var(--accent));
       display: flex; align-items: center; justify-content: space-between;
     }
-    .reco-header .reco-titre {
-      font-weight: 700; font-size: 1rem; color: white;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .reco-header .pct-badge {
-      background: rgba(255,255,255,0.25); color: white;
-      padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;
-    }
-
-    .reco-body { padding: 20px 22px; }
-
+    .reco-titre { font-weight: 700; font-size: 0.97rem; color: white; display: flex; align-items: center; gap: 8px; }
+    .pct-badge  { background: rgba(255,255,255,.22); color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; }
+    .reco-body  { padding: 20px 22px; }
     .reco-action-directe {
-      background: #fff3e0; border-left: 3px solid #ff9800;
+      background: #fff7ed; border-left: 3px solid var(--neu);
       padding: 10px 14px; border-radius: 0 8px 8px 0;
-      font-weight: 700; font-size: 0.9rem; color: #e65100; margin-bottom: 16px;
+      font-weight: 700; font-size: 0.88rem; color: #c2410c; margin-bottom: 16px;
     }
-
-    .reco-horizon { margin-bottom: 14px; }
     .reco-horizon h4 {
-      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px;
-      color: #aaa; font-weight: 700; margin-bottom: 8px;
+      font-size: 0.73rem; text-transform: uppercase; letter-spacing: .5px;
+      color: #94a3b8; font-weight: 700; margin-bottom: 8px;
     }
-    .reco-horizon ul { list-style: none; padding: 0; }
+    .reco-horizon ul { list-style: none; padding: 0; margin-bottom: 14px; }
     .reco-horizon ul li {
-      font-size: 0.87rem; color: #555; padding: 5px 0;
-      border-bottom: 1px solid #f5f5f5; display: flex; align-items: flex-start; gap: 8px;
+      font-size: 0.86rem; color: #475569; padding: 5px 0;
+      border-bottom: 1px solid #f8fafc; display: flex; align-items: flex-start; gap: 8px;
     }
     .reco-horizon ul li:last-child { border-bottom: none; }
-    .reco-horizon ul li::before { content: "→"; color: #ccc; flex-shrink: 0; }
-
+    .reco-horizon ul li::before { content: "›"; color: #cbd5e1; flex-shrink: 0; }
     .reco-kpi {
-      background: #f8f9ff; border-radius: 8px; padding: 10px 14px;
-      font-size: 0.8rem; color: #667eea; margin-top: 14px;
+      background: #f0f4ff; border-radius: 8px; padding: 10px 14px;
+      font-size: 0.8rem; color: var(--accent); margin-top: 14px; line-height: 1.6;
     }
     .reco-kpi strong { font-weight: 700; }
 
-    /* ── GRAPHIQUE TENDANCE ── */
+    /* ── CHART TENDANCE ── */
     .chart-container {
-      background: white; border-radius: 14px; padding: 28px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 36px;
+      background: var(--surface); border-radius: var(--radius); padding: 28px;
+      box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 36px;
     }
-    .chart-container canvas { max-height: 320px; }
+    .chart-container canvas { max-height: 300px; }
+
+    /* ── MOTEUR INFO ── */
+    .model-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #f0f4ff; color: var(--accent); border-radius: 6px;
+      padding: 4px 10px; font-size: 0.75rem; font-weight: 600; font-family: 'DM Mono', monospace;
+      border: 1px solid #c7d2fe;
+    }
 
     /* ── EMPTY STATE ── */
     .empty-state {
-      text-align: center; padding: 60px 20px; color: #bbb;
+      text-align: center; padding: 56px 20px; color: #94a3b8;
     }
-    .empty-state .empty-icon { font-size: 3rem; margin-bottom: 12px; }
-    .empty-state h3 { font-size: 1.1rem; color: #999; margin-bottom: 8px; }
-    .empty-state p  { font-size: 0.88rem; }
+    .empty-state h3 { font-size: 1.05rem; color: #64748b; margin-bottom: 8px; }
+    .empty-state p  { font-size: 0.86rem; line-height: 1.6; }
+    .empty-state a  { color: var(--accent); }
 
     /* ── FOOTER ── */
     footer {
-      text-align: center; padding: 32px 16px; color: #bbb; font-size: 0.8rem;
+      text-align: center; padding: 28px 16px; color: #94a3b8; font-size: 0.78rem;
     }
+
+    /* ── FADE IN ── */
+    .fade-in { animation: fadeIn .4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   </style>
 </head>
 <body>
 
-<!-- NAVIGATION -->
 <nav>
-  <div class="logo">Tableau de Bord QVT</div>
-  <div class="actions">
-    <a href="/">Voir le formulaire</a>
-    <a href="/dashboard" class="btn-nav">Actualiser</a>
+  <div class="nav-logo">
+    <span class="dot"></span>
+    QVT Agent — Dashboard RH
+  </div>
+  <div class="nav-actions">
+    {% if model_info %}
+    <span class="model-badge">⚙ {{ model_info.active_model }}</span>
+    {% endif %}
+    <a href="/" class="nav-link">Formulaire</a>
+    <a href="/dashboard" class="nav-btn">Actualiser</a>
   </div>
 </nav>
 
 <div class="container">
 
-  <!-- EN-TÊTE -->
-  <div class="dash-header">
+  <!-- HEADER -->
+  <div class="page-header fade-in">
     <div>
-      <h1>Baromètre de Qualité de Vie au Travail</h1>
-      <p>Données agrégées et anonymisées · Minimum 5 réponses par thème</p>
+      <h1>Tableau de Bord QVT</h1>
+      <p>Données agrégées et anonymisées · Règle N≥5 appliquée</p>
     </div>
-    {% if mois_dispo %}
-    <div class="mois-select">
-      <label>Période :</label>
-      <select onchange="window.location='/dashboard?mois='+this.value">
-        <option value="">Toutes les périodes</option>
-        {% for m in mois_dispo %}
+    <form method="GET" action="/dashboard">
+      <div class="mois-select">
+        <label>Période</label>
+        <select name="mois" onchange="this.form.submit()">
+          {% for m in mois_dispo %}
           <option value="{{ m }}" {% if m == mois_selec %}selected{% endif %}>{{ m }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+    </form>
   </div>
 
-  <!-- KPI GLOBAUX -->
-  <div class="kpi-grid">
-    <div class="kpi-card {% if score_global.score_global < -0.3 %}danger{% elif score_global.score_global < 0 %}warning{% else %}ok{% endif %}">
-      <div class="kpi-label" style="margin-bottom: 12px;">Score Global</div>
-      <div class="kpi-val">
-        {% if score_global.score_global >= 0.3 %}😊
-        {% elif score_global.score_global >= -0.3 %}😐
-        {% else %}😟
-        {% endif %}
-        {{ "%.2f"|format(score_global.score_global) }}
-      </div>
-      <div class="kpi-label">Sentiment Général</div>
-      <div class="kpi-sub">Échelle de -1.0 (très négatif) à +1.0 (très positif)</div>
+  <!-- KPI -->
+  <div class="kpi-grid fade-in">
+    <div class="kpi-card {% if score_global.score_global >= 0.3 %}ok{% elif score_global.score_global >= -0.3 %}warning{% else %}danger{% endif %}">
+      <div class="kpi-icon">{% if score_global.score_global >= 0.3 %}😊{% elif score_global.score_global >= -0.3 %}😐{% else %}😟{% endif %}</div>
+      <div class="kpi-val">{{ "%.2f"|format(score_global.score_global) }}</div>
+      <div class="kpi-label">Sentiment Global</div>
+      <div class="kpi-sub">Échelle −1.0 → +1.0</div>
     </div>
 
     <div class="kpi-card info">
-      <div class="kpi-label" style="margin-bottom: 12px;">Réponses</div>
+      <div class="kpi-icon">📬</div>
       <div class="kpi-val">{{ score_global.total }}</div>
-      <div class="kpi-label">Total reçu</div>
+      <div class="kpi-label">Retours reçus</div>
       <div class="kpi-sub">Anonymisés et agrégés</div>
     </div>
 
     {% if score_global.note_globale %}
     <div class="kpi-card {% if score_global.note_globale >= 4 %}ok{% elif score_global.note_globale >= 3 %}warning{% else %}danger{% endif %}">
-      <div class="kpi-label" style="margin-bottom: 12px;">Bien-être Moyen</div>
+      <div class="kpi-icon">⭐</div>
       <div class="kpi-val">{{ score_global.note_globale }}/5</div>
-      <div class="kpi-label">Score Déclaré</div>
+      <div class="kpi-label">Bien-être déclaré</div>
       <div class="kpi-sub">Score quanti 1→5</div>
     </div>
     {% endif %}
 
     <div class="kpi-card {% if alerte_burnout.alerte %}danger{% else %}ok{% endif %}">
-      <div class="kpi-label" style="margin-bottom: 12px;">Signaux d'Alerte</div>
+      <div class="kpi-icon">{% if alerte_burnout.alerte %}🚨{% else %}✅{% endif %}</div>
       <div class="kpi-val">{{ alerte_burnout.nb_signaux }}</div>
-      <div class="kpi-label">Détressance</div>
-      <div class="kpi-sub">{% if alerte_burnout.alerte %}⚠️ Seuil d'alerte atteint (≥ 3){% else %}En dessous du seuil d'alerte{% endif %}</div>
+      <div class="kpi-label">Signaux détresse</div>
+      <div class="kpi-sub">{% if alerte_burnout.alerte %}⚠️ Seuil d'alerte ≥ 3{% else %}En dessous du seuil{% endif %}</div>
+    </div>
+
+    <div class="kpi-card {% if stats_themes|length > 0 %}ok{% else %}warning{% endif %}">
+      <div class="kpi-icon">🏷️</div>
+      <div class="kpi-val">{{ stats_themes|length }}</div>
+      <div class="kpi-label">Thèmes actifs</div>
+      <div class="kpi-sub">≥ 5 retours par thème</div>
     </div>
   </div>
 
-  <!-- ALERTE BURNOUT -->
+  <!-- BURNOUT -->
   {% if alerte_burnout.alerte %}
-  <div class="burnout-alerte">
-    <div class="alerte-icon">⚠</div>
+  <div class="burnout-banner fade-in">
+    <div class="bi">⚠️</div>
     <div>
-      <h3>Alerte détectée — {{ alerte_burnout.nb_signaux }} signal(aux) ce mois</h3>
-      <p>
-        Des collaborateurs expriment des signaux de détresse importants. Action recommandée :
-        déployer une ligne d'écoute psychologique confidentielle et proposer un soutien individuel anonyme.
-        <strong>Ces données sont strictement agrégées — aucune personne n'est identifiable.</strong>
-      </p>
+      <h3>Alerte détresse — {{ alerte_burnout.nb_signaux }} signal(aux) ce mois</h3>
+      <p>Des collaborateurs expriment des signaux de détresse importants. Déployer une ligne d'écoute psychologique confidentielle et proposer un soutien individuel anonyme. <strong>Ces données sont strictement agrégées — aucune personne n'est identifiable.</strong></p>
     </div>
   </div>
   {% endif %}
 
-  <!-- THÈMES -->
-  <div class="section-title">Analyse par Thème</div>
+  <!-- THÈMES AVEC PIE CHARTS -->
+  <div class="section-header">
+    <div class="section-title">🏷️ Analyse par thème — {{ mois_selec }}</div>
+  </div>
 
   {% if stats_themes %}
   <div class="themes-grid">
     {% for stat in stats_themes %}
-    <div class="theme-card" style="--theme-color: {{ stat.color }}">
-      <div class="theme-header">
-        <div class="theme-name">{{ stat.label }}</div>
-        <span class="urgence-badge {{ stat.urgence }}">{{ stat.urgence_label }}</span>
+    {% set pct_neg = stat.pct_negatif %}
+    {% set pct_neu = ((stat.nb_neutre / stat.total) * 100)|round(1) %}
+    {% set pct_pos = ((stat.nb_positif / stat.total) * 100)|round(1) %}
+    <div class="theme-card fade-in" style="--t-color: {{ stat.color }}">
+      <div class="theme-card-top">
+        <div class="theme-card-header">
+          <div class="theme-name">{{ stat.emoji }} {{ stat.label }}</div>
+          <span class="urgence-badge {{ stat.urgence }}">{{ stat.urgence_label }}</span>
+        </div>
       </div>
 
-      <div class="barre-label">
-        <span>Négatif</span>
-        <span>{{ stat.pct_negatif }}%</span>
-      </div>
-      <div class="barre-bg">
-        <div class="barre-fill negatif" style="width: {{ stat.pct_negatif }}%"></div>
+      <div class="theme-chart-row">
+        <div class="chart-wrap">
+          <canvas id="donut-{{ loop.index }}" width="100" height="100"></canvas>
+          <div class="chart-center-label">
+            <span class="chart-center-pct" style="color:{% if pct_neg >= 60 %}#ef4444{% elif pct_neg >= 40 %}#f59e0b{% else %}#22c55e{% endif %}">{{ pct_neg }}%</span>
+            <span class="chart-center-sub">neg.</span>
+          </div>
+        </div>
+        <div class="chart-legend">
+          <div class="legend-row">
+            <div class="legend-name"><div class="legend-dot" style="background:#ef4444"></div>Négatif</div>
+            <span class="legend-val">{{ pct_neg }}%</span>
+          </div>
+          <div class="legend-row">
+            <div class="legend-name"><div class="legend-dot" style="background:#f59e0b"></div>Neutre</div>
+            <span class="legend-val">{{ pct_neu }}%</span>
+          </div>
+          <div class="legend-row">
+            <div class="legend-name"><div class="legend-dot" style="background:#22c55e"></div>Positif</div>
+            <span class="legend-val">{{ pct_pos }}%</span>
+          </div>
+        </div>
       </div>
 
-      <div class="barre-label">
-        <span>Neutre</span>
-        <span>{{ ((stat.nb_neutre / stat.total) * 100)|round(1) }}%</span>
-      </div>
-      <div class="barre-bg">
-        <div class="barre-fill neutre" style="width: {{ ((stat.nb_neutre / stat.total) * 100)|round(1) }}%"></div>
-      </div>
-
-      <div class="barre-label">
-        <span>Positif</span>
-        <span>{{ ((stat.nb_positif / stat.total) * 100)|round(1) }}%</span>
-      </div>
-      <div class="barre-bg">
-        <div class="barre-fill positif" style="width: {{ ((stat.nb_positif / stat.total) * 100)|round(1) }}%"></div>
-      </div>
-
-      <div class="theme-meta">
+      <div class="theme-meta-row">
         <span><strong>{{ stat.total }}</strong> retours</span>
-        <span>Score moyen : <strong>{{ "%.2f"|format(stat.score_moyen) }}</strong></span>
+        <span>Score : <strong>{{ "%.2f"|format(stat.score_moyen) }}</strong></span>
         {% if stat.note_moyenne %}<span>Note : <strong>{{ stat.note_moyenne }}/5</strong></span>{% endif %}
       </div>
     </div>
@@ -344,52 +496,90 @@
   </div>
   {% else %}
   <div class="empty-state">
+    <div>📊</div>
     <h3>Données insuffisantes</h3>
     <p>Un minimum de 5 réponses par thème est requis pour afficher les résultats.<br>
        <a href="/">Soumettre un retour</a></p>
   </div>
   {% endif %}
 
+  <!-- SYNTHÈSE LLM -->
+  <div class="section-header">
+    <div class="section-title">🤖 Synthèse mensuelle — IA</div>
+  </div>
+
+  <div class="synthese-panel fade-in">
+    <div class="synthese-header">
+      <div>
+        <div class="synthese-title">✨ Rapport narratif automatique — {{ mois_selec }}</div>
+        <div class="synthese-meta">Généré à partir des statistiques anonymisées du mois · Aucune donnée personnelle transmise</div>
+      </div>
+      <button class="btn-generate" id="btnGenerate" onclick="genererSynthese()">
+        <span class="spinner" id="spinner"></span>
+        <span id="btnText">Générer la synthèse</span>
+      </button>
+    </div>
+    <div class="synthese-body">
+      <div class="synthese-placeholder" id="synthesePlaceholder">
+        <div class="ph-icon">📋</div>
+        <p>Cliquez sur <strong>Générer la synthèse</strong> pour obtenir une analyse narrative du mois basée sur les statistiques agrégées.</p>
+      </div>
+      <div class="synthese-content" id="syntheseContent">
+        <div class="synthese-section">
+          <h3>📊 Résumé exécutif</h3>
+          <div class="synthese-text" id="synResume"></div>
+        </div>
+        <div class="synthese-section">
+          <h3>⚠️ Points d'attention prioritaires</h3>
+          <div class="pill-list" id="synAlertes"></div>
+          <div class="synthese-text" id="synAlertesText" style="margin-top:12px"></div>
+        </div>
+        <div class="synthese-section">
+          <h3>✅ Points positifs à consolider</h3>
+          <div class="pill-list" id="synPositifs"></div>
+        </div>
+        <div class="synthese-section">
+          <h3>🎯 Actions recommandées</h3>
+          <ol class="action-list" id="synActions"></ol>
+        </div>
+        <div class="synthese-section">
+          <h3>📈 Tendance générale</h3>
+          <div class="synthese-text" id="synTendance"></div>
+        </div>
+      </div>
+    </div>
+    <div class="synthese-footer" id="syntheseFooter" style="display:none">
+      <span>Généré le <strong id="synDate"></strong> · Basé sur <strong>{{ score_global.total }}</strong> retours anonymisés</span>
+      <button class="btn-copy" onclick="copierSynthese()">📋 Copier</button>
+    </div>
+  </div>
+
   <!-- RECOMMANDATIONS -->
   {% if recommandations %}
-  <div class="section-title">Recommandations Prioritaires — Seuil 60% négatif atteint</div>
+  <div class="section-header">
+    <div class="section-title">💡 Recommandations prioritaires <span style="font-weight:400;color:var(--muted);font-size:0.85rem;">— Seuil 60% négatif atteint</span></div>
+  </div>
   <div class="reco-grid">
     {% for reco in recommandations %}
-    <div class="reco-card" style="--reco-color: {{ reco.color }}">
-      <div class="reco-header">
-        <div class="reco-titre">{{ reco.label }}</div>
+    <div class="reco-card fade-in" style="--r-color: {{ reco.color }}">
+      <div class="reco-card-top">
+        <div class="reco-titre">{{ reco.emoji }} {{ reco.label }}</div>
         <span class="pct-badge">{{ reco.pct_negatif }}% négatif</span>
       </div>
       <div class="reco-body">
         <div class="reco-action-directe">{{ reco.action_directe }}</div>
-
         <div class="reco-horizon">
           <h4>Court terme — &lt; 2 semaines</h4>
-          <ul>
-            {% for action in reco.actions.court_terme %}
-            <li>{{ action }}</li>
-            {% endfor %}
-          </ul>
+          <ul>{% for a in reco.actions.court_terme %}<li>{{ a }}</li>{% endfor %}</ul>
         </div>
-
         <div class="reco-horizon">
           <h4>Moyen terme — 1 à 3 mois</h4>
-          <ul>
-            {% for action in reco.actions.moyen_terme %}
-            <li>{{ action }}</li>
-            {% endfor %}
-          </ul>
+          <ul>{% for a in reco.actions.moyen_terme %}<li>{{ a }}</li>{% endfor %}</ul>
         </div>
-
         <div class="reco-horizon">
           <h4>Long terme — 3 à 12 mois</h4>
-          <ul>
-            {% for action in reco.actions.long_terme %}
-            <li>{{ action }}</li>
-            {% endfor %}
-          </ul>
+          <ul>{% for a in reco.actions.long_terme %}<li>{{ a }}</li>{% endfor %}</ul>
         </div>
-
         <div class="reco-kpi">
           <strong>KPI à suivre :</strong> {{ reco.kpi | join(" · ") }}<br>
           <strong>Risque si inaction :</strong> {{ reco.risque }}
@@ -402,8 +592,10 @@
 
   <!-- GRAPHIQUE TENDANCE -->
   {% if chart_tendances != '{}' %}
-  <div class="section-title">📈 Tendance dans le temps</div>
-  <div class="chart-containerTendance dans le T
+  <div class="section-header">
+    <div class="section-title">📈 Évolution dans le temps</div>
+  </div>
+  <div class="chart-container fade-in">
     <canvas id="chartTendance"></canvas>
   </div>
   {% endif %}
@@ -412,64 +604,210 @@
 
 <footer>
   Dashboard QVT · Données agrégées et anonymisées · Règle N≥5 appliquée · Aucun texte brut stocké
-</Tableau de bord QVT · Données anonymisées et agrégées · Minimum 5 réponses · Aucun texte brut archiv
+</footer>
 
+<!-- DONNÉES POUR JS -->
 <script>
-// ── GRAPHIQUE TENDANCE ──
-const tendancesData = {{ chart_tendances | safe }};
+// Données injectées par Flask (Jinja2)
+const STATS_THEMES   = {{ stats_themes | tojson }};
+const CHART_TENDANCES = {{ chart_tendances | safe }};
+const MOIS_SELEC     = "{{ mois_selec }}";
+const SCORE_GLOBAL   = {{ score_global | tojson }};
+const ALERTE_BURNOUT = {{ alerte_burnout | tojson }};
 
-if (Object.keys(tendancesData).length > 0) {
-  // Récupérer tous les mois distincts
-  const tousMois = [...new Set(
-    Object.values(tendancesData).flatMap(t => t.points.map(p => p.mois))
-  )].sort();
+// ── DONUT CHARTS ─────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  STATS_THEMES.forEach((stat, i) => {
+    const total   = stat.total;
+    const pctNeg  = stat.nb_negatif / total * 100;
+    const pctNeu  = stat.nb_neutre  / total * 100;
+    const pctPos  = stat.nb_positif / total * 100;
+    const canvas  = document.getElementById(`donut-${i + 1}`);
+    if (!canvas) return;
 
-  const datasets = Object.entries(tendancesData).map(([code, info]) => {
-    const scores = tousMois.map(m => {
-      const pt = info.points.find(p => p.mois === m);
-      return pt ? pt.score : null;
-    });
-    return {
-      label: info.label,
-      data: scores,
-      borderColor: info.color,
-      backgroundColor: info.color + '22',
-      tension: 0.4,
-      pointRadius: 5,
-      pointHoverRadius: 7,
-      borderWidth: 2.5,
-      spanGaps: true,
-    };
-  });
-
-  new Chart(document.getElementById('chartTendance'), {
-    type: 'line',
-    data: { labels: tousMois, datasets },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } },
-        tooltip: {
-          callbacks: {
-            label: ctx => ` ${ctx.dataset.label} : ${ctx.raw?.toFixed(2) ?? 'N/A'}`
-          }
-        }
+    new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels:   ['Négatif', 'Neutre', 'Positif'],
+        datasets: [{
+          data:            [pctNeg, pctNeu, pctPos],
+          backgroundColor: ['#ef4444', '#f59e0b', '#22c55e'],
+          borderWidth:     0,
+          hoverOffset:     4,
+        }]
       },
-      scales: {
-        y: {
-          min: -1, max: 1,
-          grid: { color: '#f0f0f0' },
-          ticks: {
-            callback: v => v === 0 ? '0 (neutre)' : v > 0 ? '+'+v : v
+      options: {
+        cutout: '68%',
+        responsive: false,
+        plugins: {
+          legend:  { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.label} : ${ctx.raw.toFixed(1)}%`
+            }
           }
         },
-        x: { grid: { display: false } }
+        animation: { animateRotate: true, duration: 800 }
       }
-    }
+    });
+  });
+
+  // ── TENDANCE ──
+  if (Object.keys(CHART_TENDANCES).length > 0) {
+    const tousMois = [...new Set(
+      Object.values(CHART_TENDANCES).flatMap(t => t.points.map(p => p.mois))
+    )].sort();
+
+    const datasets = Object.entries(CHART_TENDANCES).map(([, info]) => {
+      const scores = tousMois.map(m => {
+        const pt = info.points.find(p => p.mois === m);
+        return pt ? pt.score : null;
+      });
+      return {
+        label:           info.label,
+        data:            scores,
+        borderColor:     info.color,
+        backgroundColor: info.color + '18',
+        tension:         0.4,
+        pointRadius:     5,
+        pointHoverRadius:7,
+        borderWidth:     2.5,
+        spanGaps:        true,
+        fill:            true,
+      };
+    });
+
+    new Chart(document.getElementById('chartTendance'), {
+      type: 'line',
+      data: { labels: tousMois, datasets },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } },
+          tooltip: {
+            callbacks: { label: ctx => ` ${ctx.dataset.label} : ${ctx.raw?.toFixed(2) ?? 'N/A'}` }
+          }
+        },
+        scales: {
+          y: {
+            min: -1, max: 1,
+            grid: { color: '#f1f5f9' },
+            ticks: { callback: v => v === 0 ? '0' : v > 0 ? '+' + v : v }
+          },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+});
+
+// ── SYNTHÈSE LLM ──────────────────────────────────────────────────────────────
+async function genererSynthese() {
+  const btn     = document.getElementById('btnGenerate');
+  const spinner = document.getElementById('spinner');
+  const btnText = document.getElementById('btnText');
+
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  btnText.textContent   = 'Génération…';
+
+  // Masque le placeholder
+  document.getElementById('synthesePlaceholder').style.display = 'none';
+  document.getElementById('syntheseContent').classList.add('visible');
+
+  // Vide les zones
+  ['synResume','synAlertesText','synTendance'].forEach(id => {
+    document.getElementById(id).innerHTML = '<span class="cursor"></span>';
+  });
+  document.getElementById('synAlertes').innerHTML  = '';
+  document.getElementById('synPositifs').innerHTML = '';
+  document.getElementById('synActions').innerHTML  = '';
+
+  try {
+    const payload = {
+      mois:          MOIS_SELEC,
+      score_global:  SCORE_GLOBAL,
+      alerte_burnout:ALERTE_BURNOUT,
+      stats_themes:  STATS_THEMES,
+    };
+
+    const res = await fetch('/api/synthese', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+
+    if (!res.ok) throw new Error('Erreur serveur ' + res.status);
+
+    const data = await res.json();
+
+    // Anime le texte
+    await typewriterText('synResume',      data.resume       || '');
+    await typewriterText('synAlertesText', data.alertes_texte|| '');
+    await typewriterText('synTendance',    data.tendance     || '');
+
+    // Pills alertes
+    const alertesEl = document.getElementById('synAlertes');
+    (data.alertes_themes || []).forEach(t => {
+      const pill = document.createElement('span');
+      pill.className = 'pill danger';
+      pill.textContent = t;
+      alertesEl.appendChild(pill);
+    });
+
+    // Pills positifs
+    const positifsEl = document.getElementById('synPositifs');
+    (data.positifs || []).forEach(t => {
+      const pill = document.createElement('span');
+      pill.className = 'pill success';
+      pill.textContent = t;
+      positifsEl.appendChild(pill);
+    });
+
+    // Actions
+    const actionsEl = document.getElementById('synActions');
+    (data.actions || []).forEach((a, i) => {
+      const li  = document.createElement('li');
+      li.innerHTML = `<span class="num">${i + 1}</span> ${a}`;
+      actionsEl.appendChild(li);
+    });
+
+    // Footer
+    document.getElementById('syntheseFooter').style.display = 'flex';
+    document.getElementById('synDate').textContent = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  } catch (e) {
+    document.getElementById('synResume').textContent = '⚠️ Erreur lors de la génération : ' + e.message;
+  }
+
+  btn.disabled = false;
+  spinner.style.display = 'none';
+  btnText.textContent   = 'Regénérer';
+}
+
+async function typewriterText(elId, text) {
+  const el = document.getElementById(elId);
+  el.textContent = '';
+  for (let i = 0; i < text.length; i++) {
+    el.textContent += text[i];
+    if (i % 5 === 0) await sleep(8);
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function copierSynthese() {
+  const parts = ['synResume', 'synAlertesText', 'synTendance']
+    .map(id => document.getElementById(id).textContent)
+    .join('\n\n');
+  navigator.clipboard.writeText(parts).then(() => {
+    const btn = document.querySelector('.btn-copy');
+    btn.textContent = '✓ Copié !';
+    setTimeout(() => { btn.textContent = '📋 Copier'; }, 2000);
   });
 }
 
-// ── AUTO-REFRESH toutes les 2 minutes ──
+// Auto-refresh 2 minutes
 setTimeout(() => location.reload(), 120000);
 </script>
 </body>
