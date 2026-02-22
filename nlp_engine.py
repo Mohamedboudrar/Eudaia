@@ -1,19 +1,14 @@
 """
-nlp_engine.py
--------------
-Moteur NLP unifié du projet QVT — 3 moteurs de classification disponibles :
-
-  1. "logistic"    → TF-IDF + Logistic Regression  (rapide, léger, nécessite données d'entraînement)
-  2. "naive_bayes" → TF-IDF + Naive Bayes          (très rapide, léger, nécessite données d'entraînement)
-  3. "zeroshot"    → CamemBERT-XNLI zero-shot      (lent ~1-2s/texte, 440 MB, aucune donnée requise)
-
-Changement de moteur :
-  • Via API  : POST /api/model/set/zeroshot
-  • Via code : set_active_model("zeroshot")
-  • Au démarrage dans app.py : MODEL_TYPE = "zeroshot"
-
-Le sentiment et la détection burnout restent identiques (lexique + règles)
-quel que soit le moteur de classification choisi.
+nlp_engine.py — QVT Agent v3
+------------------------------
+CORRECTIFS CRITIQUES :
+  1. Seuils sentiment resserrés : NEUTRE = [-0.15, +0.15] (était ±0.3 → trop large)
+     Avant : score +0.25 = NEUTRE  |  Après : score +0.25 = POSITIF
+  2. Lexique enrichi avec TOUS les termes QVT courants (ambiance, équipe, etc.)
+  3. Fallback note_quanti : si le score lexical est 0.0 (mot inconnu),
+     la note chiffrée (1-5) est utilisée pour inférer le sentiment
+  4. Log de debug pour tracer chaque analyse (affiché dans la console Flask)
+  5. Normalisation defensive du sentiment avant stockage
 """
 
 import os, re, csv, json, pickle
@@ -40,18 +35,30 @@ RECOS_JSON    = os.path.join(DATA_DIR, "recommandations.json")
 MODEL_LR_FILE = os.path.join(MODEL_DIR, "theme_classifier.pkl")
 MODEL_NB_FILE = os.path.join(MODEL_DIR, "theme_classifier_nb.pkl")
 
-# ── Moteurs disponibles ───────────────────────────────────────────────────────
-MODELS_DISPONIBLES = ["logistic", "naive_bayes", "zeroshot"]
+MODELS_DISPONIBLES  = ["logistic", "naive_bayes", "zeroshot"]
+_ACTIVE_MODEL_FILE  = os.path.join(MODEL_DIR, "active_model.txt")
 
-# Fichier de persistance du moteur actif.
-# Permet de survivre aux redémarrages du reloader Flask (debug=True).
-# Le reloader Flask tue et recrée le processus à chaque changement de code,
-# ce qui réinitialise toutes les variables globales en mémoire.
-# En lisant/écrivant dans un fichier, le choix de moteur survit à ces redémarrages.
-_ACTIVE_MODEL_FILE = os.path.join(MODEL_DIR, "active_model.txt")
+# ── SEUILS SENTIMENT ──────────────────────────────────────────────────────────
+# CORRECTIF CRITIQUE : seuils resserrés pour mieux différencier NEUTRE/POSITIF/NEGATIF
+# Ancien : NEUTRE = score dans [-0.30, +0.30]  → trop large, avalait les positifs faibles
+# Nouveau : NEUTRE = score dans [-0.15, +0.15] → discrimination plus fine
+SEUIL_NEGATIF = -0.15   # en dessous → NEGATIF
+SEUIL_POSITIF =  0.15   # au dessus  → POSITIF
+# Entre les deux → NEUTRE
 
+# ── Fallback quand le lexique n'a aucun mot ───────────────────────────────────
+# Si le score lexical est 0.0 ET une note_quanti est disponible, on l'utilise
+# note 1-2 → NEGATIF | note 3 → NEUTRE | note 4-5 → POSITIF
+def _sentiment_depuis_note(note: int) -> tuple[float, str]:
+    if note <= 2:
+        return -0.5, "NEGATIF"
+    elif note == 3:
+        return 0.0, "NEUTRE"
+    else:
+        return 0.5, "POSITIF"
+
+# ── Moteur persisté ───────────────────────────────────────────────────────────
 def _lire_modele_persistant() -> str:
-    """Lit le moteur actif depuis le fichier de persistance (ou retourne le défaut)."""
     try:
         with open(_ACTIVE_MODEL_FILE, "r") as f:
             val = f.read().strip()
@@ -62,26 +69,18 @@ def _lire_modele_persistant() -> str:
     return "logistic"
 
 def _ecrire_modele_persistant(model_type: str):
-    """Écrit le moteur actif dans le fichier de persistance."""
     os.makedirs(os.path.dirname(_ACTIVE_MODEL_FILE), exist_ok=True)
     with open(_ACTIVE_MODEL_FILE, "w") as f:
         f.write(model_type)
 
-# ── Caches en mémoire ─────────────────────────────────────────────────────────
-_model_lr        = None   # Pipeline scikit-learn LR
-_model_nb        = None   # Pipeline scikit-learn NB
-_model_zeroshot  = None   # Pipeline HuggingFace zero-shot
+_model_lr       = None
+_model_nb       = None
+_model_zeroshot = None
 
 # ── Configuration zero-shot ───────────────────────────────────────────────────
-# Modèle multilingue robuste, compatible toutes versions de transformers récentes.
-# Remplace BaptisteDoyen/camembert-base-xnli (incompatible avec transformers >= 4.36)
-ZEROSHOT_MODEL_NAME = "joeddav/xlm-roberta-large-xnli"
-
-# Fallback si le modèle principal échoue
+ZEROSHOT_MODEL_NAME     = "joeddav/xlm-roberta-large-xnli"
 ZEROSHOT_MODEL_FALLBACK = "cross-encoder/nli-MiniLM2-L6-H768"
 
-# Thèmes QVT pour le zero-shot : clé interne → description naturelle en français
-# Ces labels sont directement compris par le modèle, modifiables sans réentraînement
 THEMES_ZEROSHOT: dict[str, str] = {
     "CHARGE_TRAVAIL": "surcharge de travail, heures supplémentaires ou épuisement professionnel",
     "MANAGEMENT":     "management, relations avec le responsable ou le manager",
@@ -95,10 +94,9 @@ THEMES_ZEROSHOT: dict[str, str] = {
     "CONDITIONS":     "conditions de travail, locaux, bruit ou ergonomie",
 }
 
-SEUIL_CONFIANCE_ZEROSHOT = 0.20  # En dessous → NON_CLASSE
-SEUIL_CONFIANCE_TFIDF    = 0.15  # En dessous → NON_CLASSE
+SEUIL_CONFIANCE_ZEROSHOT = 0.20
+SEUIL_CONFIANCE_TFIDF    = 0.15
 
-# ── Mots déclencheurs burnout ─────────────────────────────────────────────────
 BURNOUT_TRIGGERS = [
     "burnout", "craquer", "plus de force", "à bout", "plus envie",
     "ras-le-bol", "démissionner", "je veux partir", "je n'en peux plus",
@@ -107,41 +105,30 @@ BURNOUT_TRIGGERS = [
 ]
 
 # =============================================================================
-# 1. NETTOYAGE
+# NETTOYAGE
 # =============================================================================
 
 def nettoyer(texte: str) -> str:
-    """Minuscules + suppression ponctuation lourde, garde les apostrophes."""
     texte = texte.lower().strip()
     texte = re.sub(r"[^\w\s\'\-àâäéèêëîïôöùûüç]", " ", texte)
     texte = re.sub(r"\s+", " ", texte)
     return texte
 
 # =============================================================================
-# 2. MODÈLES TF-IDF (LOGISTIC REGRESSION & NAIVE BAYES)
+# MODÈLES TF-IDF
 # =============================================================================
 
 def entrainer_modele(force=False, model_type="all"):
-    """
-    Entraîne les modèles TF-IDF + classifieurs à partir de verbatims_entrainement.csv.
-    model_type : "logistic" | "naive_bayes" | "all"
-    Ne ré-entraîne pas si les fichiers existent déjà (sauf force=True).
-    N'a aucun effet sur le moteur zero-shot (pas de données d'entraînement requises).
-    """
-    # Le zero-shot ne nécessite pas d'entraînement
     if model_type == "zeroshot":
         print("ℹ️  Zero-shot : aucun entraînement nécessaire.")
         return
-
     if not os.path.exists(VERBATIMS_CSV):
         print(f"⚠️  Fichier d'entraînement introuvable : {VERBATIMS_CSV}")
-        print("   Les modèles TF-IDF ne peuvent pas être entraînés.")
         return
 
-    print(f"⏳ Entraînement {'modèles TF-IDF' if model_type == 'all' else model_type}...")
     df = pd.read_csv(VERBATIMS_CSV, encoding="utf-8")
     df = df.dropna(subset=["texte", "theme"])
-    df["texte_propre"] = df["texte"].apply(nettoyer)
+    df.loc[:, "texte_propre"] = df["texte"].apply(nettoyer)
     X, y = df["texte_propre"], df["theme"]
 
     if len(X) > 20:
@@ -160,11 +147,9 @@ def entrainer_modele(force=False, model_type="all"):
                 ("clf", LogisticRegression(max_iter=1000, C=1.0, class_weight="balanced", solver="lbfgs"))
             ])
             pipe.fit(X_train, y_train)
-            print("\n📊 Logistic Regression :")
-            print(classification_report(y_test, pipe.predict(X_test)))
             with open(MODEL_LR_FILE, "wb") as f:
                 pickle.dump(pipe, f)
-            print(f"✅ Logistic Regression sauvegardé → {MODEL_LR_FILE}")
+            print(f"✅ Logistic Regression entraîné → {MODEL_LR_FILE}")
 
     if model_type in ["naive_bayes", "all"]:
         if not os.path.exists(MODEL_NB_FILE) or force:
@@ -173,30 +158,21 @@ def entrainer_modele(force=False, model_type="all"):
                 ("clf", MultinomialNB(alpha=1.0))
             ])
             pipe.fit(X_train, y_train)
-            print("\n📊 Naive Bayes :")
-            print(classification_report(y_test, pipe.predict(X_test)))
             with open(MODEL_NB_FILE, "wb") as f:
                 pickle.dump(pipe, f)
-            print(f"✅ Naive Bayes sauvegardé → {MODEL_NB_FILE}")
+            print(f"✅ Naive Bayes entraîné → {MODEL_NB_FILE}")
 
 
 def _charger_modele_tfidf(model_type: str):
-    """Charge un modèle TF-IDF depuis le disque (avec entraînement auto si absent)."""
     path = MODEL_NB_FILE if model_type == "naive_bayes" else MODEL_LR_FILE
     if not os.path.exists(path):
-        print(f"⚠️  Modèle {model_type} non trouvé → entraînement automatique...")
         entrainer_modele(force=True, model_type=model_type)
     with open(path, "rb") as f:
         return pickle.load(f)
 
 
 def _classifier_theme_tfidf(texte: str, model_type: str) -> tuple[str, float]:
-    """
-    Classifie le thème via TF-IDF + classifieur scikit-learn.
-    Utilise le cache en mémoire pour éviter de recharger à chaque appel.
-    """
     global _model_lr, _model_nb
-
     if model_type == "naive_bayes":
         if _model_nb is None:
             _model_nb = _charger_modele_tfidf("naive_bayes")
@@ -214,109 +190,73 @@ def _classifier_theme_tfidf(texte: str, model_type: str) -> tuple[str, float]:
 
     if score < SEUIL_CONFIANCE_TFIDF:
         theme = "NON_CLASSE"
-
     return theme, score
 
 # =============================================================================
-# 3. MODÈLE ZERO-SHOT (CamemBERT-XNLI)
+# ZERO-SHOT
 # =============================================================================
 
 def _charger_zeroshot():
-    """
-    Charge le pipeline zero-shot HuggingFace au premier appel.
-    Téléchargement automatique puis mise en cache locale.
-    Essaie d'abord ZEROSHOT_MODEL_NAME, puis ZEROSHOT_MODEL_FALLBACK en cas d'erreur.
-    """
     global _model_zeroshot
     if _model_zeroshot is not None:
         return _model_zeroshot
-
     try:
         from transformers import pipeline
     except ImportError:
-        raise ImportError(
-            "Le module 'transformers' est requis pour le moteur zero-shot.\n"
-            "Installez-le avec : pip install transformers torch sentencepiece"
-        )
+        raise ImportError("pip install transformers torch sentencepiece")
 
     for model_name in [ZEROSHOT_MODEL_NAME, ZEROSHOT_MODEL_FALLBACK]:
         try:
-            print(f"⏳ Chargement du modèle zero-shot : {model_name}")
-            print(f"   (Cache dans {CACHE_DIR})")
+            print(f"⏳ Chargement zero-shot : {model_name}")
             _model_zeroshot = pipeline(
                 task="zero-shot-classification",
                 model=model_name,
                 cache_dir=CACHE_DIR,
-                # device=0,  # Décommenter pour utiliser le GPU CUDA
             )
-            print(f"✅ Modèle zero-shot chargé : {model_name}")
+            print(f"✅ Zero-shot chargé : {model_name}")
             return _model_zeroshot
         except Exception as e:
-            print(f"⚠️  Échec chargement {model_name} : {e}")
-            print(f"   → Tentative avec le modèle suivant...")
-
-    raise RuntimeError(
-        "Impossible de charger un modèle zero-shot compatible.\n"
-        "Solutions :\n"
-        "  1. Mettre à jour transformers : pip install -U transformers\n"
-        "  2. Utiliser le moteur logistic à la place :\n"
-        "     curl -X POST http://localhost:5000/api/model/set/logistic\n"
-        "  OU supprimez le fichier models/active_model.txt pour revenir au défaut."
-    )
+            print(f"⚠️  Échec {model_name} : {e}")
+    raise RuntimeError("Impossible de charger un modèle zero-shot.")
 
 
 def _classifier_theme_zeroshot(texte: str) -> tuple[str, float]:
-    """
-    Classifie le thème via zero-shot NLI (CamemBERT-XNLI).
-    Le modèle évalue chaque label comme hypothèse : "Ce texte parle de {label}."
-    Aucune donnée d'entraînement requise — les thèmes sont modifiables à chaud.
-    """
     clf = _charger_zeroshot()
     labels_list = list(THEMES_ZEROSHOT.values())
     cles_list   = list(THEMES_ZEROSHOT.keys())
-
     result = clf(
         sequences=texte,
         candidate_labels=labels_list,
         hypothesis_template="Ce texte parle de {}.",
-        multi_label=False,  # Un seul thème dominant
+        multi_label=False,
     )
-
     best_label = result["labels"][0]
     best_score = result["scores"][0]
-    idx = labels_list.index(best_label)
-    theme_key = cles_list[idx]
-
+    idx        = labels_list.index(best_label)
+    theme_key  = cles_list[idx]
     if best_score < SEUIL_CONFIANCE_ZEROSHOT:
         theme_key = "NON_CLASSE"
-
     return theme_key, round(float(best_score), 4)
 
 
 def ajouter_theme_zeroshot(cle: str, label_fr: str):
-    """
-    Ajoute ou modifie un thème zero-shot à chaud, sans réentraînement.
-    Exemple : ajouter_theme_zeroshot("INCLUSION", "diversité, inclusion et égalité au travail")
-    """
     THEMES_ZEROSHOT[cle] = label_fr
-    print(f"✅ Thème zero-shot ajouté/mis à jour : {cle} → \"{label_fr}\"")
+    print(f"✅ Thème ajouté : {cle} → \"{label_fr}\"")
 
 
 def lister_themes_zeroshot():
-    """Affiche les thèmes zero-shot configurés."""
-    print("\n📋 Thèmes zero-shot configurés :")
+    print("\n📋 Thèmes zero-shot :")
     for cle, label in THEMES_ZEROSHOT.items():
         print(f"  {cle:20} → {label}")
 
 # =============================================================================
-# 4. SENTIMENT (lexique + règles — identique pour tous les moteurs)
+# SENTIMENT — CORRECTIF CENTRAL
 # =============================================================================
 
 def charger_lexique() -> dict:
-    """Charge le lexique de sentiment depuis lexique_sentiment.csv."""
     lexique = {}
     if not os.path.exists(LEXIQUE_CSV):
-        print(f"⚠️  Lexique introuvable : {LEXIQUE_CSV} — sentiment désactivé.")
+        print(f"⚠️  Lexique introuvable : {LEXIQUE_CSV}")
         return lexique
     with open(LEXIQUE_CSV, encoding="utf-8") as f:
         for row in csv.DictReader(f):
@@ -329,11 +269,16 @@ def charger_lexique() -> dict:
 LEXIQUE = charger_lexique()
 
 
-def calculer_sentiment(texte: str) -> tuple[float, str]:
+def calculer_sentiment(texte: str, note_quanti: int = None) -> tuple[float, str]:
     """
-    Score de sentiment via lexique + règles linguistiques.
-    Gère : intensificateurs, négation simple (pas/ne/jamais/aucun…), bigrammes.
-    Retourne (score_float ∈ [-1, 1], label ∈ {POSITIF, NEGATIF, NEUTRE}).
+    Calcule le score de sentiment via lexique + règles.
+
+    CORRECTIFS v3 :
+    - Seuils resserrés : POSITIF si score >= +0.15 (était +0.30)
+                         NEGATIF si score <= -0.15 (était -0.30)
+    - Fallback note_quanti : si le lexique ne trouve aucun mot ET qu'une note
+      chiffrée est fournie, on l'utilise pour inférer le sentiment
+    - Retourne toujours exactement 'NEGATIF', 'NEUTRE' ou 'POSITIF'
     """
     tokens = nettoyer(texte).split()
     score_total, nb_mots = 0.0, 0
@@ -367,117 +312,114 @@ def calculer_sentiment(texte: str) -> tuple[float, str]:
                 intensif, negation = 1.0, False
         i += 1
 
+    # ── Fallback note_quanti si lexique vide ─────────────────────────────────
     if nb_mots == 0:
+        if note_quanti and 1 <= note_quanti <= 5:
+            return _sentiment_depuis_note(note_quanti)
         return 0.0, "NEUTRE"
 
     score = max(-1.0, min(1.0, score_total / nb_mots))
-    label = "NEGATIF" if score <= -0.3 else ("POSITIF" if score >= 0.3 else "NEUTRE")
+
+    # CORRECTIF : seuils resserrés ±0.15 au lieu de ±0.30
+    if score <= SEUIL_NEGATIF:
+        label = "NEGATIF"
+    elif score >= SEUIL_POSITIF:
+        label = "POSITIF"
+    else:
+        label = "NEUTRE"
+
     return round(score, 4), label
 
 # =============================================================================
-# 5. DÉTECTION BURNOUT (identique pour tous les moteurs)
+# DÉTECTION BURNOUT
 # =============================================================================
 
 def detecter_burnout(texte: str, score_sentiment: float) -> bool:
-    """
-    Retourne True si le texte contient un signal de burnout.
-    Condition : mot déclencheur présent ET score sentiment < -0.55.
-    """
     texte_low = texte.lower()
     return any(t in texte_low for t in BURNOUT_TRIGGERS) and score_sentiment < -0.55
 
 # =============================================================================
-# 6. GESTION DU MODÈLE ACTIF
+# GESTION MOTEUR
 # =============================================================================
 
 def set_active_model(model_type: str):
-    """
-    Change le moteur de classification actif.
-    Valeurs acceptées : "logistic" | "naive_bayes" | "zeroshot"
-
-    Le changement est persisté dans models/active_model.txt pour survivre
-    aux redémarrages du reloader Flask (debug=True).
-    """
     if model_type not in MODELS_DISPONIBLES:
-        raise ValueError(f"model_type doit être l'un de : {MODELS_DISPONIBLES}")
+        raise ValueError(f"model_type doit être : {MODELS_DISPONIBLES}")
     _ecrire_modele_persistant(model_type)
-    print(f"🔄 Moteur actif changé → {model_type}")
+    print(f"🔄 Moteur → {model_type}")
 
 
 def get_active_model() -> str:
-    """Retourne le nom du moteur de classification actuellement actif (lu depuis le fichier)."""
     return _lire_modele_persistant()
 
 
 def get_model_info() -> dict:
-    """Retourne un dict complet sur l'état des modèles."""
     return {
-        "active_model":       _lire_modele_persistant(),
-        "available_models":   MODELS_DISPONIBLES,
-        "zeroshot_loaded":    _model_zeroshot is not None,
-        "tfidf_lr_loaded":    _model_lr is not None,
-        "tfidf_nb_loaded":    _model_nb is not None,
-        "zeroshot_themes":    list(THEMES_ZEROSHOT.keys()),
+        "active_model":        _lire_modele_persistant(),
+        "available_models":    MODELS_DISPONIBLES,
+        "zeroshot_loaded":     _model_zeroshot is not None,
+        "tfidf_lr_loaded":     _model_lr is not None,
+        "tfidf_nb_loaded":     _model_nb is not None,
+        "zeroshot_themes":     list(THEMES_ZEROSHOT.keys()),
         "zeroshot_model_name": ZEROSHOT_MODEL_NAME,
+        "seuil_positif":       SEUIL_POSITIF,
+        "seuil_negatif":       SEUIL_NEGATIF,
     }
 
 # =============================================================================
-# 7. ANALYSE PRINCIPALE (point d'entrée unique)
+# ANALYSE PRINCIPALE
 # =============================================================================
 
-def analyser(texte: str) -> dict:
+def analyser(texte: str, note_quanti: int = None) -> dict:
     """
-    Analyse complète d'un verbatim collaborateur.
-
-    Entrée  : texte brut (non stocké après analyse)
-    Sortie  : {theme, confiance, sentiment, score_sentiment, signal_burnout, moteur}
-
-    Le moteur utilisé dépend de _active_model_type (modifiable via set_active_model()).
+    Analyse complète d'un verbatim.
+    note_quanti (optionnel) : note 1-5 pour fallback sentiment si lexique insuffisant.
+    Retourne : {theme, confiance, sentiment, score_sentiment, signal_burnout, moteur}
     """
-    moteur = _lire_modele_persistant()  # toujours lire depuis le fichier (survit au reloader)
+    moteur = _lire_modele_persistant()
 
-    # ── Classification du thème selon le moteur actif
+    # ── Classification thème
     if moteur == "zeroshot":
         try:
             theme, confiance = _classifier_theme_zeroshot(texte)
         except Exception as e:
-            print(f"⚠️  Moteur zero-shot indisponible ({e})")
-            print("   → Bascule automatique sur 'logistic'")
-            _ecrire_modele_persistant("logistic")   # corrige le fichier persistant
+            print(f"⚠️  Zero-shot indisponible ({e}) → logistic")
+            _ecrire_modele_persistant("logistic")
             theme, confiance = _classifier_theme_tfidf(texte, "logistic")
     else:
         theme, confiance = _classifier_theme_tfidf(texte, moteur)
 
-    # ── Sentiment (identique pour tous les moteurs)
-    score_sent, label_sent = calculer_sentiment(texte)
+    # ── Sentiment avec fallback note
+    score_sent, label_sent = calculer_sentiment(texte, note_quanti)
 
-    # ── Détection burnout
+    # ── Burnout
     signal_burnout = detecter_burnout(texte, score_sent)
+
+    # ── Log debug (visible dans la console Flask)
+    print(f"📝 ANALYSE | thème={theme:20} conf={confiance:.2f} | "
+          f"sentiment={label_sent:8} score={score_sent:+.3f} | "
+          f"burnout={'OUI' if signal_burnout else 'non':3} | "
+          f"moteur={moteur} | texte='{texte[:60]}...'")
 
     return {
         "theme":           theme,
         "confiance":       confiance,
-        "sentiment":       label_sent,
+        "sentiment":       label_sent,    # toujours 'NEGATIF'|'NEUTRE'|'POSITIF'
         "score_sentiment": score_sent,
         "signal_burnout":  signal_burnout,
-        "moteur":          moteur,          # ← nouveau : traçabilité du moteur utilisé
+        "moteur":          moteur,
     }
 
 # =============================================================================
-# 8. RECOMMANDATIONS
+# RECOMMANDATIONS
 # =============================================================================
 
 def charger_recommandations() -> dict:
-    """Charge le fichier recommandations.json."""
     with open(RECOS_JSON, encoding="utf-8") as f:
         return json.load(f)
 
 
 def get_recommandation(theme: str, pct_negatif: float) -> Optional[dict]:
-    """
-    Retourne la recommandation pour un thème si pct_negatif >= seuil configuré.
-    Retourne None si le thème est inconnu ou si le seuil n'est pas atteint.
-    """
     recos = charger_recommandations()
     if theme not in recos:
         return None
@@ -486,42 +428,33 @@ def get_recommandation(theme: str, pct_negatif: float) -> Optional[dict]:
         return reco
     return None
 
+
 # =============================================================================
-# SCRIPT STANDALONE — test rapide des 3 moteurs
+# SCRIPT STANDALONE — test rapide
 # =============================================================================
 
 if __name__ == "__main__":
-    print("=" * 65)
-    print("  QVT NLP Engine — Test des 3 moteurs")
-    print("=" * 65)
+    print("=" * 70)
+    print("  QVT NLP Engine v3 — Test sentiment avec nouveaux seuils ±0.15")
+    print("=" * 70)
 
-    TESTS = [
-        "Je suis complètement débordé, je travaille jusqu'à 21h tous les soirs.",
-        "Mon manager ne nous donne jamais de retour, c'est très frustrant.",
-        "Les outils plantent constamment, je perds un temps fou.",
-        "Super ambiance dans l'équipe, on s'entraide vraiment bien.",
-        "Je n'arrive plus à dormir tellement je pense au travail.",
-        "On m'a promis une augmentation et elle n'est jamais arrivée.",
+    tests = [
+        ("super équipe, vraiment soudée et entraide au quotidien", 5),
+        ("bonne ambiance en général", 4),
+        ("ça se passe correctement", 3),
+        ("quelques tensions mais gérable", 2),
+        ("je suis complètement débordé, travaille jusqu'à 21h", 1),
+        ("mon manager ne donne jamais de retour, très frustrant", 1),
+        ("les outils plantent constamment", 2),
+        ("je n'arrive plus à dormir tellement je suis à bout", 1),
     ]
 
-    for moteur in ["logistic", "naive_bayes", "zeroshot"]:
-        print(f"\n{'─'*65}")
-        print(f"  🤖 Moteur : {moteur.upper()}")
-        print(f"{'─'*65}")
+    entrainer_modele(model_type="logistic")
+    set_active_model("logistic")
 
-        if moteur in ["logistic", "naive_bayes"]:
-            entrainer_modele(model_type=moteur)
-
-        set_active_model(moteur)
-
-        for t in TESTS:
-            try:
-                r = analyser(t)
-                burnout = " 🚨 BURNOUT" if r["signal_burnout"] else ""
-                print(f"  [{r['theme']:20}] conf={r['confiance']:.2f} "
-                      f"[{r['sentiment']:8}] score={r['score_sentiment']:+.2f}{burnout}")
-                print(f"   → {t[:75]}")
-                print()
-            except Exception as e:
-                print(f"  ⚠️  Erreur avec le moteur {moteur} : {e}")
-                break
+    print(f"\n{'Texte':50} {'Note':5} {'Thème':20} {'Sentiment':10} {'Score':7}")
+    print("-" * 100)
+    for texte, note in tests:
+        r = analyser(texte, note)
+        burnout = " 🚨" if r["signal_burnout"] else ""
+        print(f"  {texte[:48]:48} {note:5}  {r['theme']:20} {r['sentiment']:10} {r['score_sentiment']:+.3f}{burnout}")

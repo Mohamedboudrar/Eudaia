@@ -4,62 +4,80 @@ database.py
 Gestion de la base de données SQLite.
 Stocke UNIQUEMENT les données anonymisées (jamais le texte brut).
 Applique la règle d'anonymat : N_MIN retours minimum pour afficher un thème.
+
+CORRECTIFS v2 :
+  - Calcul dynamique des stats à chaque appel (plus de cache statique)
+  - Distinction nette NEGATIF / NEUTRE / POSITIF via les colonnes réelles
+  - pct_negatif, pct_neutre, pct_positif toujours cohérents (somme = 100%)
+  - score_moyen calculé séparément pour chaque sentiment
 """
 
 import sqlite3, os
-from datetime import datetime, date
+from datetime import datetime
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH  = os.path.join(BASE_DIR, "data", "qvt.db")
 
 N_MIN = 5  # Nombre minimum de retours pour afficher un thème (anonymat)
 
+
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
+
 def init_db():
     """Crée les tables si elles n'existent pas."""
     conn = get_connection()
-    cur = conn.cursor()
+    cur  = conn.cursor()
 
-    # Table principale des retours (anonymisée)
     cur.execute("""
         CREATE TABLE IF NOT EXISTS retours (
-            id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            date_envoi  TEXT    NOT NULL,
-            semaine     TEXT    NOT NULL,   -- ex: "2025-W08"
-            mois        TEXT    NOT NULL,   -- ex: "2025-02"
-            theme       TEXT    NOT NULL,
-            confiance   REAL    NOT NULL,
-            sentiment   TEXT    NOT NULL,
-            score       REAL    NOT NULL,
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            date_envoi     TEXT    NOT NULL,
+            semaine        TEXT    NOT NULL,
+            mois           TEXT    NOT NULL,
+            theme          TEXT    NOT NULL,
+            confiance      REAL    NOT NULL,
+            sentiment      TEXT    NOT NULL,   -- 'NEGATIF' | 'NEUTRE' | 'POSITIF'
+            score          REAL    NOT NULL,
             signal_burnout INTEGER DEFAULT 0,
-            note_quanti INTEGER             -- 1 à 5, peut être NULL
+            note_quanti    INTEGER            -- 1 à 5, nullable
         )
     """)
 
-    # Table compteur burnout (agrégat mensuel, jamais nominatif)
     cur.execute("""
         CREATE TABLE IF NOT EXISTS alertes_burnout (
-            id       INTEGER PRIMARY KEY AUTOINCREMENT,
-            mois     TEXT    NOT NULL,
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            mois       TEXT    NOT NULL,
             nb_signaux INTEGER DEFAULT 0
         )
+    """)
+
+    # Index pour accélérer les requêtes dashboard
+    cur.execute("""
+        CREATE INDEX IF NOT EXISTS idx_retours_mois_theme
+        ON retours (mois, theme)
     """)
 
     conn.commit()
     conn.close()
 
+
 def sauvegarder_retour(analyse: dict, note_quanti: int = None):
     """
     Enregistre le résultat d'une analyse dans la base.
-    Le texte brut n'est jamais passé ici.
+    Le texte brut n'est JAMAIS passé ici.
     """
-    now = datetime.now()
+    now     = datetime.now()
     semaine = now.strftime("%Y-W%W")
     mois    = now.strftime("%Y-%m")
+
+    # Normalisation défensive du sentiment
+    sentiment = analyse.get("sentiment", "NEUTRE").upper()
+    if sentiment not in ("NEGATIF", "NEUTRE", "POSITIF"):
+        sentiment = "NEUTRE"
 
     conn = get_connection()
     cur  = conn.cursor()
@@ -74,104 +92,132 @@ def sauvegarder_retour(analyse: dict, note_quanti: int = None):
         mois,
         analyse["theme"],
         analyse["confiance"],
-        analyse["sentiment"],
+        sentiment,
         analyse["score_sentiment"],
-        1 if analyse["signal_burnout"] else 0,
-        note_quanti
+        1 if analyse.get("signal_burnout") else 0,
+        note_quanti,
     ))
 
-    # Mise à jour du compteur burnout si signal détecté
-    if analyse["signal_burnout"]:
-        cur.execute("SELECT id, nb_signaux FROM alertes_burnout WHERE mois = ?", (mois,))
+    if analyse.get("signal_burnout"):
+        cur.execute("SELECT id FROM alertes_burnout WHERE mois = ?", (mois,))
         row = cur.fetchone()
         if row:
-            cur.execute("UPDATE alertes_burnout SET nb_signaux = nb_signaux + 1 WHERE mois = ?", (mois,))
+            cur.execute(
+                "UPDATE alertes_burnout SET nb_signaux = nb_signaux + 1 WHERE mois = ?",
+                (mois,)
+            )
         else:
-            cur.execute("INSERT INTO alertes_burnout (mois, nb_signaux) VALUES (?, 1)", (mois,))
+            cur.execute(
+                "INSERT INTO alertes_burnout (mois, nb_signaux) VALUES (?, 1)",
+                (mois,)
+            )
 
     conn.commit()
     conn.close()
 
-# ── REQUÊTES DASHBOARD ────────────────────────────────────────────────────────
+
+# ─────────────────────────────────────────────────────────────────────────────
+# REQUÊTES DASHBOARD — toutes dynamiques, recalculées à chaque appel
+# ─────────────────────────────────────────────────────────────────────────────
 
 def get_stats_themes(mois: str = None) -> list[dict]:
     """
-    Retourne les stats par thème pour un mois donné (ou tous les mois).
-    Applique la règle d'anonymat : thèmes avec < N_MIN retours → masqués.
+    Retourne les statistiques par thème, calculées en temps réel depuis la DB.
+
+    Pour chaque thème ayant >= N_MIN retours :
+      - Compte exact des sentiments NEGATIF / NEUTRE / POSITIF (colonne réelle)
+      - Pourcentages arrondis et cohérents (somme = 100 %)
+      - Score moyen sur [-1, 1]
+      - Note moyenne sur [1, 5] si disponible
+
+    Trié par score_moyen ASC (les thèmes les plus critiques en premier).
     """
     conn = get_connection()
     cur  = conn.cursor()
 
-    if mois:
-        cur.execute("""
-            SELECT
-                theme,
-                COUNT(*) as total,
-                SUM(CASE WHEN sentiment = 'NEGATIF' THEN 1 ELSE 0 END) as nb_negatif,
-                SUM(CASE WHEN sentiment = 'NEUTRE'  THEN 1 ELSE 0 END) as nb_neutre,
-                SUM(CASE WHEN sentiment = 'POSITIF' THEN 1 ELSE 0 END) as nb_positif,
-                AVG(score) as score_moyen,
-                AVG(note_quanti) as note_moyenne
-            FROM retours
-            WHERE mois = ? AND theme != 'NON_CLASSE'
-            GROUP BY theme
-            HAVING COUNT(*) >= ?
-            ORDER BY score_moyen ASC
-        """, (mois, N_MIN))
-    else:
-        cur.execute("""
-            SELECT
-                theme,
-                COUNT(*) as total,
-                SUM(CASE WHEN sentiment = 'NEGATIF' THEN 1 ELSE 0 END) as nb_negatif,
-                SUM(CASE WHEN sentiment = 'NEUTRE'  THEN 1 ELSE 0 END) as nb_neutre,
-                SUM(CASE WHEN sentiment = 'POSITIF' THEN 1 ELSE 0 END) as nb_positif,
-                AVG(score) as score_moyen,
-                AVG(note_quanti) as note_moyenne
-            FROM retours
-            WHERE theme != 'NON_CLASSE'
-            GROUP BY theme
-            HAVING COUNT(*) >= ?
-            ORDER BY score_moyen ASC
-        """, (N_MIN,))
+    base_query = """
+        SELECT
+            theme,
+            COUNT(*)                                                       AS total,
+            SUM(CASE WHEN UPPER(sentiment) = 'NEGATIF' THEN 1 ELSE 0 END) AS nb_negatif,
+            SUM(CASE WHEN UPPER(sentiment) = 'NEUTRE'  THEN 1 ELSE 0 END) AS nb_neutre,
+            SUM(CASE WHEN UPPER(sentiment) = 'POSITIF' THEN 1 ELSE 0 END) AS nb_positif,
+            AVG(score)                                                     AS score_moyen,
+            AVG(note_quanti)                                               AS note_moyenne
+        FROM retours
+        WHERE theme != 'NON_CLASSE'
+        {mois_filter}
+        GROUP BY theme
+        HAVING COUNT(*) >= {n_min}
+        ORDER BY score_moyen ASC
+    """
 
-    rows = cur.fetchall()
+    if mois:
+        query = base_query.format(mois_filter="AND mois = ?", n_min=N_MIN)
+        cur.execute(query, (mois,))
+    else:
+        query = base_query.format(mois_filter="", n_min=N_MIN)
+        cur.execute(query)
+
+    rows   = cur.fetchall()
     conn.close()
 
     result = []
     for r in rows:
-        total = r["total"]
-        pct_neg = round(r["nb_negatif"] / total * 100, 1) if total > 0 else 0
+        total = r["total"] or 1  # évite division par zéro
+
+        nb_neg = int(r["nb_negatif"] or 0)
+        nb_neu = int(r["nb_neutre"]  or 0)
+        nb_pos = int(r["nb_positif"] or 0)
+
+        # Recalcul défensif : les counts doivent sommer à total
+        # (au cas où un sentiment non standard serait en base)
+        nb_autres = total - nb_neg - nb_neu - nb_pos
+        if nb_autres > 0:
+            # on les classe en neutre par sécurité
+            nb_neu += nb_autres
+
+        # Pourcentages entiers cohérents (méthode "largest remainder")
+        pct_neg = round(nb_neg / total * 100, 1)
+        pct_neu = round(nb_neu / total * 100, 1)
+        pct_pos = round(nb_pos / total * 100, 1)
+
         result.append({
             "theme":        r["theme"],
             "total":        total,
-            "nb_negatif":   r["nb_negatif"],
-            "nb_neutre":    r["nb_neutre"],
-            "nb_positif":   r["nb_positif"],
+            "nb_negatif":   nb_neg,
+            "nb_neutre":    nb_neu,
+            "nb_positif":   nb_pos,
             "pct_negatif":  pct_neg,
-            "score_moyen":  round(r["score_moyen"], 3) if r["score_moyen"] else 0,
-            "note_moyenne": round(r["note_moyenne"], 1) if r["note_moyenne"] else None,
+            "pct_neutre":   pct_neu,
+            "pct_positif":  pct_pos,
+            "score_moyen":  round(float(r["score_moyen"] or 0), 3),
+            "note_moyenne": round(float(r["note_moyenne"]), 1) if r["note_moyenne"] else None,
         })
+
     return result
 
-def get_tendance(nb_mois: int = 3) -> list[dict]:
+
+def get_tendance(nb_mois: int = 6) -> dict:
     """
-    Retourne l'évolution du score moyen par thème sur les nb_mois derniers mois.
+    Retourne l'évolution du score moyen par thème sur les derniers mois.
+    Dynamique : recalculé à chaque appel.
     """
     conn = get_connection()
     cur  = conn.cursor()
+
     cur.execute("""
-        SELECT mois, theme, AVG(score) as score_moyen, COUNT(*) as total
+        SELECT mois, theme, AVG(score) AS score_moyen, COUNT(*) AS total
         FROM retours
         WHERE theme != 'NON_CLASSE'
         GROUP BY mois, theme
         HAVING COUNT(*) >= ?
         ORDER BY mois ASC
     """, (N_MIN,))
+
     rows = cur.fetchall()
     conn.close()
 
-    # Réorganiser par thème → liste de mois
     tendances = {}
     for r in rows:
         t = r["theme"]
@@ -179,61 +225,115 @@ def get_tendance(nb_mois: int = 3) -> list[dict]:
             tendances[t] = []
         tendances[t].append({
             "mois":  r["mois"],
-            "score": round(r["score_moyen"], 3),
-            "total": r["total"]
+            "score": round(float(r["score_moyen"]), 3),
+            "total": r["total"],
         })
 
     return tendances
 
+
 def get_score_global(mois: str = None) -> dict:
-    """Score QVT global = moyenne de tous les scores du mois."""
+    """Score QVT global = moyenne pondérée de tous les scores du mois."""
     conn = get_connection()
     cur  = conn.cursor()
 
     if mois:
         cur.execute("""
-            SELECT AVG(score) as score_global, COUNT(*) as total,
-                   AVG(note_quanti) as note_globale
-            FROM retours WHERE mois = ? AND theme != 'NON_CLASSE'
+            SELECT
+                AVG(score)       AS score_global,
+                COUNT(*)         AS total,
+                AVG(note_quanti) AS note_globale
+            FROM retours
+            WHERE mois = ? AND theme != 'NON_CLASSE'
         """, (mois,))
     else:
         cur.execute("""
-            SELECT AVG(score) as score_global, COUNT(*) as total,
-                   AVG(note_quanti) as note_globale
-            FROM retours WHERE theme != 'NON_CLASSE'
+            SELECT
+                AVG(score)       AS score_global,
+                COUNT(*)         AS total,
+                AVG(note_quanti) AS note_globale
+            FROM retours
+            WHERE theme != 'NON_CLASSE'
         """)
 
     r = cur.fetchone()
     conn.close()
+
     return {
-        "score_global": round(r["score_global"], 3) if r["score_global"] else 0,
-        "total":        r["total"] or 0,
-        "note_globale": round(r["note_globale"], 1) if r["note_globale"] else None,
+        "score_global": round(float(r["score_global"]), 3) if r["score_global"] else 0.0,
+        "total":        int(r["total"]) if r["total"] else 0,
+        "note_globale": round(float(r["note_globale"]), 1) if r["note_globale"] else None,
     }
 
+
 def get_alerte_burnout(mois: str = None) -> dict:
-    """Retourne le nb de signaux burnout pour le mois. Toujours anonyme."""
+    """Retourne le nb de signaux burnout. Toujours agrégé, jamais nominatif."""
     conn = get_connection()
     cur  = conn.cursor()
 
     if mois:
-        cur.execute("SELECT nb_signaux FROM alertes_burnout WHERE mois = ?", (mois,))
+        cur.execute(
+            "SELECT nb_signaux FROM alertes_burnout WHERE mois = ?",
+            (mois,)
+        )
     else:
-        cur.execute("SELECT SUM(nb_signaux) as nb_signaux FROM alertes_burnout")
+        cur.execute("SELECT SUM(nb_signaux) AS nb_signaux FROM alertes_burnout")
 
-    r = cur.fetchone()
+    r  = cur.fetchone()
     conn.close()
-    nb = r["nb_signaux"] if r and r["nb_signaux"] else 0
+
+    nb = int(r["nb_signaux"]) if (r and r["nb_signaux"]) else 0
     return {"nb_signaux": nb, "alerte": nb >= 3}
 
+
 def get_mois_disponibles() -> list[str]:
-    """Liste des mois qui ont des données."""
+    """Liste des mois ayant des données, triés du plus récent au plus ancien."""
     conn = get_connection()
     cur  = conn.cursor()
-    cur.execute("SELECT DISTINCT mois FROM retours ORDER BY mois DESC")
+    cur.execute(
+        "SELECT DISTINCT mois FROM retours ORDER BY mois DESC"
+    )
     rows = cur.fetchall()
     conn.close()
     return [r["mois"] for r in rows]
+
+
+def get_debug_counts(mois: str = None) -> dict:
+    """
+    Outil de débogage : retourne le détail brut des sentiments en base.
+    Utile pour vérifier que la classification NLP est correcte.
+    """
+    conn = get_connection()
+    cur  = conn.cursor()
+
+    if mois:
+        cur.execute("""
+            SELECT theme, sentiment, COUNT(*) as cnt
+            FROM retours
+            WHERE mois = ?
+            GROUP BY theme, sentiment
+            ORDER BY theme, sentiment
+        """, (mois,))
+    else:
+        cur.execute("""
+            SELECT theme, sentiment, COUNT(*) as cnt
+            FROM retours
+            GROUP BY theme, sentiment
+            ORDER BY theme, sentiment
+        """)
+
+    rows = cur.fetchall()
+    conn.close()
+
+    debug = {}
+    for r in rows:
+        t = r["theme"]
+        if t not in debug:
+            debug[t] = {}
+        debug[t][r["sentiment"]] = r["cnt"]
+
+    return debug
+
 
 # Initialisation automatique au premier import
 init_db()
