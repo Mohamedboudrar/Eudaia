@@ -4,230 +4,519 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mon ressenti — QVT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink:      #0d0d0d;
+      --ink-soft: #4a4a4a;
+      --ink-mute: #9a9a9a;
+      --cream:    #faf9f6;
+      --white:    #ffffff;
+      --line:     #e8e5df;
+      --gold:     #c9a96e;
+      --gold-lt:  #f0e8d8;
+      --green:    #2d6a4f;
+      --green-lt: #e8f5ee;
+      --radius:   3px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 40px 20px;
+      position: relative;
+      overflow-x: hidden;
     }
 
+    /* ── Background texture ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 15% 20%, rgba(201,169,110,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 85% 80%, rgba(45,106,79,0.05) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Decorative vertical lines ── */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 1px;
+      height: 100%;
+      background: linear-gradient(to bottom, transparent, var(--line) 20%, var(--line) 80%, transparent);
+      opacity: 0.5;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Main card ── */
     .card {
-      background: white;
-      border-radius: 20px;
-      padding: 48px 40px;
-      max-width: 560px;
+      position: relative; z-index: 1;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      padding: 0;
+      max-width: 540px;
       width: 100%;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.18);
+      box-shadow:
+        0 1px 2px rgba(0,0,0,.04),
+        0 8px 32px rgba(0,0,0,.06),
+        0 32px 80px rgba(0,0,0,.05);
+      animation: cardReveal .7s cubic-bezier(.16,1,.3,1) forwards;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    @keyframes cardReveal {
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .header { text-align: center; margin-bottom: 36px; }
-    .header .icon { font-size: 3rem; margin-bottom: 12px; }
-    .header h1 { font-size: 1.7rem; color: #1a1a2e; font-weight: 700; margin-bottom: 8px; }
-    .header p  { color: #666; font-size: 0.95rem; line-height: 1.5; }
+    /* ── Gold top accent ── */
+    .card-accent {
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      border-radius: 2px 2px 0 0;
+    }
+
+    /* ── Header section ── */
+    .header {
+      padding: 44px 48px 36px;
+      text-align: center;
+      border-bottom: 1px solid var(--line);
+      position: relative;
+    }
+
+    .header-ornament {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      animation: fadeUp .5s .1s both;
+    }
+    .ornament-line {
+      height: 1px;
+      width: 40px;
+      background: linear-gradient(90deg, transparent, var(--gold));
+    }
+    .ornament-line.right {
+      background: linear-gradient(90deg, var(--gold), transparent);
+    }
+    .ornament-diamond {
+      width: 6px; height: 6px;
+      background: var(--gold);
+      transform: rotate(45deg);
+    }
+
+    .header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      font-weight: 300;
+      color: var(--ink);
+      letter-spacing: 0.02em;
+      line-height: 1.2;
+      margin-bottom: 10px;
+      animation: fadeUp .5s .15s both;
+    }
+    .header h1 em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .header p {
+      font-size: 0.82rem;
+      color: var(--ink-mute);
+      line-height: 1.65;
+      font-weight: 300;
+      max-width: 360px;
+      margin: 0 auto 20px;
+      animation: fadeUp .5s .2s both;
+    }
 
     .badge-anon {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: #e8f5e9;
-      color: #2e7d32;
-      border-radius: 20px;
+      gap: 7px;
+      background: var(--green-lt);
+      color: var(--green);
+      border-radius: 2px;
       padding: 6px 14px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      margin-top: 12px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      animation: fadeUp .5s .25s both;
+      border: 1px solid rgba(45,106,79,.15);
+    }
+    .badge-anon::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: .5; transform: scale(.7); }
     }
 
-    .form-group { margin-bottom: 28px; }
-
-    label {
-      display: block;
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 10px;
-      font-size: 0.95rem;
+    /* ── Form body ── */
+    .form-body {
+      padding: 40px 48px 44px;
     }
 
+    .form-group {
+      margin-bottom: 32px;
+      animation: fadeUp .5s both;
+    }
+    .form-group:nth-child(1) { animation-delay: .3s; }
+    .form-group:nth-child(2) { animation-delay: .4s; }
+    .form-group:nth-child(3) { animation-delay: .5s; }
+
+    /* ── Label ── */
+    label.field-label {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--ink);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+    }
+    label.field-label .optional {
+      font-size: 0.68rem;
+      color: var(--ink-mute);
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: 300;
+    }
+
+    /* ── Textarea ── */
+    .textarea-wrap {
+      position: relative;
+    }
     textarea {
       width: 100%;
-      padding: 16px;
-      border: 2px solid #e0e0e0;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-family: inherit;
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      font-size: 0.92rem;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
       resize: vertical;
-      min-height: 130px;
-      transition: border-color 0.2s;
-      color: #333;
-      line-height: 1.6;
+      min-height: 140px;
+      transition: border-color .2s, box-shadow .2s;
+      color: var(--ink);
+      line-height: 1.7;
+      background: var(--cream);
     }
     textarea:focus {
       outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+      border-color: var(--gold);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(201,169,110,.12);
     }
-    textarea::placeholder { color: #aaa; }
+    textarea::placeholder {
+      color: var(--ink-mute);
+      font-style: italic;
+      font-weight: 300;
+    }
 
-    .char-count { font-size: 0.8rem; color: #999; text-align: right; margin-top: 4px; }
+    .char-count {
+      font-size: 0.7rem;
+      color: var(--ink-mute);
+      text-align: right;
+      margin-top: 7px;
+      letter-spacing: 0.02em;
+    }
+    .char-count span { color: var(--ink-soft); font-weight: 500; }
 
-    /* Notation 1 à 5 */
-    .note-label { margin-bottom: 14px; }
+    /* ── Rating stars / emoji ── */
+    .note-label {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--ink);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 14px;
+    }
+    .note-label .optional {
+      font-size: 0.68rem;
+      color: var(--ink-mute);
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: 300;
+    }
 
     .note-options {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       justify-content: space-between;
     }
 
     .note-options input[type="radio"] { display: none; }
 
+    .note-options > div { flex: 1; }
+
     .note-options label {
-      flex: 1;
+      display: block;
       text-align: center;
-      padding: 14px 8px 10px;
-      border: 2px solid #e0e0e0;
-      border-radius: 12px;
+      padding: 14px 6px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
       cursor: pointer;
-      transition: all 0.2s;
-      font-weight: 600;
-      color: #666;
+      transition: all .2s cubic-bezier(.34,1.56,.64,1);
+      color: var(--ink-mute);
+      background: var(--cream);
+      position: relative;
+      overflow: hidden;
     }
 
-    .note-options label .emoji  { display: block; font-size: 1.6rem; margin-bottom: 4px; }
-    .note-options label .chiffre { font-size: 0.85rem; }
+    .note-options label::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--gold-lt);
+      opacity: 0;
+      transition: opacity .2s;
+    }
+
+    .note-options label .emoji {
+      display: block;
+      font-size: 1.5rem;
+      margin-bottom: 5px;
+      transition: transform .2s cubic-bezier(.34,1.56,.64,1);
+      position: relative;
+    }
+    .note-options label .chiffre {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      position: relative;
+      color: var(--ink-mute);
+    }
+
+    .note-options label:hover {
+      border-color: var(--gold);
+      transform: translateY(-2px);
+    }
+    .note-options label:hover .emoji {
+      transform: scale(1.15);
+    }
+    .note-options label:hover::before { opacity: .5; }
 
     .note-options input:checked + label {
-      border-color: #667eea;
-      background: #f0f2ff;
-      color: #667eea;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102,126,234,0.2);
+      border-color: var(--gold);
+      background: var(--white);
+      color: var(--ink);
+      transform: translateY(-3px);
+      box-shadow: 0 4px 16px rgba(201,169,110,.2);
     }
-
-    .note-options label:hover { border-color: #667eea; }
+    .note-options input:checked + label::before { opacity: 1; }
+    .note-options input:checked + label .emoji { transform: scale(1.1); }
+    .note-options input:checked + label .chiffre { color: var(--gold); }
 
     .note-libelles {
       display: flex;
       justify-content: space-between;
-      font-size: 0.75rem;
-      color: #999;
-      margin-top: 6px;
-      padding: 0 4px;
+      font-size: 0.68rem;
+      color: var(--ink-mute);
+      margin-top: 8px;
+      padding: 0 2px;
+      letter-spacing: 0.02em;
     }
 
+    /* ── Submit button ── */
     .btn-submit {
       width: 100%;
-      padding: 16px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
+      padding: 17px;
+      background: var(--ink);
+      color: var(--white);
       border: none;
-      border-radius: 12px;
-      font-size: 1.05rem;
-      font-weight: 700;
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
       cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s;
-      letter-spacing: 0.3px;
+      position: relative;
+      overflow: hidden;
+      transition: background .25s, transform .15s;
     }
-    .btn-submit:hover  { opacity: 0.92; transform: translateY(-1px); }
+    .btn-submit::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(201,169,110,.18), transparent);
+      transition: left .5s;
+    }
+    .btn-submit:hover {
+      background: #1a1a1a;
+      transform: translateY(-1px);
+    }
+    .btn-submit:hover::before { left: 100%; }
     .btn-submit:active { transform: translateY(0); }
 
+    /* ── Footer ── */
     .footer-info {
+      padding: 20px 48px 28px;
       text-align: center;
-      margin-top: 20px;
-      font-size: 0.78rem;
-      color: #bbb;
-      line-height: 1.6;
+      border-top: 1px solid var(--line);
+      font-size: 0.72rem;
+      color: var(--ink-mute);
+      line-height: 1.7;
+      font-weight: 300;
+      animation: fadeUp .5s .55s both;
     }
-    .footer-info a { color: #999; text-decoration: none; }
+    .footer-info a {
+      color: var(--ink-soft);
+      text-decoration: none;
+      border-bottom: 1px solid var(--line);
+      transition: color .2s, border-color .2s;
+    }
+    .footer-info a:hover {
+      color: var(--gold);
+      border-color: var(--gold);
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Focus visible accessibility ── */
+    *:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 3px;
+    }
   </style>
 </head>
 <body>
+
   <div class="card">
+    <div class="card-accent"></div>
+
+    <!-- Header -->
     <div class="header">
-      <h1>Votre ressenti</h1>
+      <div class="header-ornament">
+        <span class="ornament-line"></span>
+        <span class="ornament-diamond"></span>
+        <span class="ornament-line right"></span>
+      </div>
+      <h1>Votre <em>ressenti</em></h1>
       <p>Partagez vos observations sur votre quotidien professionnel.<br>
          Vos retours contribuent à l'amélioration continue des conditions de travail.</p>
       <span class="badge-anon">100% Anonyme — vos données ne sont pas enregistrées</span>
     </div>
 
+    <!-- Form -->
     <form action="/soumettre" method="POST" id="formQvt">
+      <div class="form-body">
 
-      <!-- Verbatim libre -->
-      <div class="form-group">
-        <label for="verbatim">Décrivez votre situation actuelle</label>
-        <textarea
-          id="verbatim"
-          name="verbatim"
-          placeholder="Ex : Je me sens débordé depuis plusieurs semaines, les priorités changent tout le temps et je n'arrive pas à tenir mes délais malgré mes efforts..."
-          maxlength="600"
-          required
-        ></textarea>
-        <div class="char-count"><span id="nbChar">0</span> / 600 caractères</div>
-      </div>
+        <!-- Verbatim -->
+        <div class="form-group">
+          <label class="field-label" for="verbatim">
+            Situation actuelle
+          </label>
+          <div class="textarea-wrap">
+            <textarea
+              id="verbatim"
+              name="verbatim"
+              placeholder="Décrivez librement votre quotidien professionnel, vos ressentis, vos préoccupations…"
+              maxlength="600"
+              required
+            ></textarea>
+          </div>
+          <div class="char-count"><span id="nbChar">0</span> / 600</div>
+        </div>
 
-      <!-- Note 1 à 5 -->
-      <div class="form-group">
-        <label class="note-label">Bien-être global <span style="color:#999;font-weight:400">(optionnel)</span></label>
-        <div class="note-options">
-          <div>
-            <input type="radio" name="note" id="n1" value="1">
-            <label for="n1"><span class="emoji">😟</span><span class="chiffre">1</span></label>
+        <!-- Note 1 à 5 -->
+        <div class="form-group">
+          <div class="note-label">
+            Bien-être global
+            <span class="optional">— optionnel</span>
           </div>
-          <div>
-            <input type="radio" name="note" id="n2" value="2">
-            <label for="n2"><span class="emoji">😕</span><span class="chiffre">2</span></label>
+          <div class="note-options">
+            <div>
+              <input type="radio" name="note" id="n1" value="1">
+              <label for="n1"><span class="emoji">😟</span><span class="chiffre">1</span></label>
+            </div>
+            <div>
+              <input type="radio" name="note" id="n2" value="2">
+              <label for="n2"><span class="emoji">😕</span><span class="chiffre">2</span></label>
+            </div>
+            <div>
+              <input type="radio" name="note" id="n3" value="3">
+              <label for="n3"><span class="emoji">😐</span><span class="chiffre">3</span></label>
+            </div>
+            <div>
+              <input type="radio" name="note" id="n4" value="4">
+              <label for="n4"><span class="emoji">🙂</span><span class="chiffre">4</span></label>
+            </div>
+            <div>
+              <input type="radio" name="note" id="n5" value="5">
+              <label for="n5"><span class="emoji">😄</span><span class="chiffre">5</span></label>
+            </div>
           </div>
-          <div>
-            <input type="radio" name="note" id="n3" value="3">
-            <label for="n3"><span class="emoji">😐</span><span class="chiffre">3</span></label>
-          </div>
-          <div>
-            <input type="radio" name="note" id="n4" value="4">
-            <label for="n4"><span class="emoji">🙂</span><span class="chiffre">4</span></label>
-          </div>
-          <div>
-            <input type="radio" name="note" id="n5" value="5">
-            <label for="n5"><span class="emoji">😄</span><span class="chiffre">5</span></label>
+          <div class="note-libelles">
+            <span>Très difficile</span>
+            <span>Très bien</span>
           </div>
         </div>
-        <div class="note-libelles">
-          <span>Très difficile</span>
-          <span>Très bien</span>
-        </div>
-      </div>
 
-      <button type="submit" class="btn-submit">
-        Envoyer mon retour
-      </button>
+        <!-- Submit -->
+        <div class="form-group" style="margin-bottom:0">
+          <button type="submit" class="btn-submit">
+            Envoyer mon retour
+          </button>
+        </div>
+
+      </div><!-- /form-body -->
     </form>
 
+    <!-- Footer -->
     <div class="footer-info">
-      Vos données sont traitées de façon anonyme et agrégée.<br>
-      Les résultats ne sont affichés que si 5+ réponses minimum par thème.<br>
-      <a href="/dashboard">Accès tableau de bord RH</a>
+      Données traitées de façon anonyme et agrégée.<br>
+      Résultats visibles à partir de 5 réponses minimum par thème.<br>
+      <a href="/dashboard">Accès tableau de bord RH →</a>
     </div>
   </div>
 
   <script>
-    // Compteur de caractères
+    // Compteur de caractères (fonctionnalité inchangée)
     const ta = document.getElementById('verbatim');
     const nb = document.getElementById('nbChar');
     ta.addEventListener('input', () => {
       nb.textContent = ta.value.length;
     });
 
-    // Empêche soumission si champ trop court
+    // Empêche soumission si champ trop court (fonctionnalité inchangée)
     document.getElementById('formQvt').addEventListener('submit', function(e) {
       if (ta.value.trim().length < 10) {
         e.preventDefault();
-        ta.style.borderColor = '#e53935';
-        ta.placeholder = 'Veuillez écrire au moins quelques mots...';
+        ta.style.borderColor = '#c0392b';
+        ta.placeholder = 'Veuillez écrire au moins quelques mots…';
       }
     });
   </script>
