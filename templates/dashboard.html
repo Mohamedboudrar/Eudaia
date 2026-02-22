@@ -1,38 +1,49 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard RH — QVT</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <style>
     :root {
-      --ink:      #0d0d0d;
+      --ink: #0d0d0d;
       --ink-soft: #4a4a4a;
       --ink-mute: #9a9a9a;
-      --cream:    #faf9f6;
-      --white:    #ffffff;
-      --bg:       #f5f4f0;
-      --line:     #e8e5df;
-      --gold:     #c9a96e;
-      --gold-lt:  #f0e8d8;
-      --green:    #2d6a4f;
+      --cream: #faf9f6;
+      --white: #ffffff;
+      --bg: #f5f4f0;
+      --line: #e8e5df;
+      --gold: #c9a96e;
+      --gold-lt: #f0e8d8;
+      --green: #2d6a4f;
       --green-lt: #e8f5ee;
-      --red:      #c0392b;
-      --red-lt:   #fdf2f2;
-      --amber:    #d97706;
+      --red: #c0392b;
+      --red-lt: #fdf2f2;
+      --amber: #d97706;
       --amber-lt: #fffbeb;
-      --neg:      #c0392b;
-      --neu:      #d97706;
-      --pos:      #2d6a4f;
-      --radius:   3px;
-      --shadow-sm: 0 1px 3px rgba(13,13,13,.05), 0 4px 16px rgba(13,13,13,.04);
-      --shadow-md: 0 2px 8px rgba(13,13,13,.06), 0 16px 48px rgba(13,13,13,.08);
+      --neg: #c0392b;
+      --neu: #d97706;
+      --pos: #2d6a4f;
+      --radius: 3px;
+      --shadow-sm: 0 1px 3px rgba(13, 13, 13, .05), 0 4px 16px rgba(13, 13, 13, .04);
+      --shadow-md: 0 2px 8px rgba(13, 13, 13, .06), 0 16px 48px rgba(13, 13, 13, .08);
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       font-family: 'DM Sans', sans-serif;
@@ -40,900 +51,1592 @@
       color: var(--ink);
       min-height: 100vh;
       font-weight: 300;
+      opacity: 0;
+      /* Hidden by default */
+      transition: opacity 0.3s ease;
+    }
+
+    body.authenticated {
+      opacity: 1;
+      /* Shown when confirmed */
     }
 
     /* ══ NAV ══════════════════════════════════════════════ */
     nav {
-      position: sticky; top: 0; z-index: 100;
+      position: sticky;
+      top: 0;
+      z-index: 100;
       background: var(--ink);
-      height: 58px; padding: 0 40px;
-      display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid rgba(201,169,110,.18);
+      height: 58px;
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(201, 169, 110, .18);
     }
 
     .nav-logo {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 1.05rem; font-weight: 400;
+      font-size: 1.05rem;
+      font-weight: 400;
       color: var(--white);
-      display: flex; align-items: center; gap: 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
       letter-spacing: 0.03em;
     }
-    .logo-orn { display: flex; align-items: center; gap: 5px; }
-    .lo-line  { width: 18px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold)); }
-    .lo-line.r{ background: linear-gradient(90deg, var(--gold), transparent); }
-    .lo-dim   { width: 4px; height: 4px; background: var(--gold); transform: rotate(45deg); }
 
-    .nav-actions { display: flex; align-items: center; gap: 16px; }
+    .logo-orn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .lo-line {
+      width: 18px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold));
+    }
+
+    .lo-line.r {
+      background: linear-gradient(90deg, var(--gold), transparent);
+    }
+
+    .lo-dim {
+      width: 4px;
+      height: 4px;
+      background: var(--gold);
+      transform: rotate(45deg);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
     .nav-link {
-      color: rgba(255,255,255,.42); text-decoration: none;
-      font-size: 0.72rem; font-weight: 400; letter-spacing: 0.07em;
-      text-transform: uppercase; transition: color .2s;
+      color: rgba(255, 255, 255, .42);
+      text-decoration: none;
+      font-size: 0.72rem;
+      font-weight: 400;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      transition: color .2s;
     }
-    .nav-link:hover { color: var(--gold); }
+
+    .nav-link:hover {
+      color: var(--gold);
+    }
+
     .nav-btn {
-      background: transparent; border: 1px solid rgba(201,169,110,.4);
-      color: var(--gold); padding: 6px 18px; border-radius: var(--radius);
-      font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em;
-      text-transform: uppercase; text-decoration: none;
-      font-family: inherit; cursor: pointer; transition: background .2s, color .2s;
+      background: transparent;
+      border: 1px solid rgba(201, 169, 110, .4);
+      color: var(--gold);
+      padding: 6px 18px;
+      border-radius: var(--radius);
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .2s, color .2s;
     }
-    .nav-btn:hover { background: var(--gold); color: var(--ink); }
+
+    .nav-btn:hover {
+      background: var(--gold);
+      color: var(--ink);
+    }
+
     .model-badge {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: rgba(201,169,110,.1); color: var(--gold);
-      border-radius: var(--radius); padding: 4px 10px;
-      font-size: 0.68rem; font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(201, 169, 110, .1);
+      color: var(--gold);
+      border-radius: var(--radius);
+      padding: 4px 10px;
+      font-size: 0.68rem;
+      font-weight: 500;
       font-family: 'DM Mono', monospace;
-      border: 1px solid rgba(201,169,110,.22);
+      border: 1px solid rgba(201, 169, 110, .22);
     }
 
     /* ══ LAYOUT ════════════════════════════════════════════ */
-    .container { max-width: 1380px; margin: 0 auto; padding: 36px 32px; }
+    .container {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 36px 32px;
+    }
 
     /* ══ PAGE HEADER ═══════════════════════════════════════ */
     .page-header {
-      display: flex; align-items: flex-start; justify-content: space-between;
-      margin-bottom: 36px; flex-wrap: wrap; gap: 20px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 36px;
+      flex-wrap: wrap;
+      gap: 20px;
     }
+
     .page-header-eyebrow {
-      font-size: 0.66rem; font-weight: 500; letter-spacing: 0.14em;
-      text-transform: uppercase; color: var(--gold);
-      display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
     }
-    .page-header-eyebrow::before { content:''; width:22px; height:1px; background:var(--gold); }
+
+    .page-header-eyebrow::before {
+      content: '';
+      width: 22px;
+      height: 1px;
+      background: var(--gold);
+    }
+
     .page-header h1 {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 1.95rem; font-weight: 300; color: var(--ink);
-      letter-spacing: -0.01em; line-height: 1.1;
+      font-size: 1.95rem;
+      font-weight: 300;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      line-height: 1.1;
     }
-    .page-header h1 em { font-style: italic; color: var(--gold); }
+
+    .page-header h1 em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
     .page-header-meta {
-      display: flex; align-items: center; gap: 12px;
-      margin-top: 10px; flex-wrap: wrap;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 10px;
+      flex-wrap: wrap;
     }
-    .meta-text { font-size: 0.73rem; color: var(--ink-mute); font-weight: 300; }
+
+    .meta-text {
+      font-size: 0.73rem;
+      color: var(--ink-mute);
+      font-weight: 300;
+    }
+
     .last-update {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 0.7rem; color: var(--ink-mute);
-      background: var(--white); border: 1px solid var(--line);
-      padding: 4px 12px; border-radius: var(--radius);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      color: var(--ink-mute);
+      background: var(--white);
+      border: 1px solid var(--line);
+      padding: 4px 12px;
+      border-radius: var(--radius);
     }
+
     .dot-live {
-      width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
       animation: pulse-dot 2s ease-in-out infinite;
     }
-    @keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+
+    @keyframes pulse-dot {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: .3;
+      }
+    }
 
     .mois-select {
-      display: flex; align-items: center; gap: 10px;
-      background: var(--white); padding: 10px 18px;
-      border-radius: var(--radius); border: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--white);
+      padding: 10px 18px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
       box-shadow: var(--shadow-sm);
     }
+
     .mois-select label {
-      font-size: 0.66rem; color: var(--ink-mute); font-weight: 500;
-      text-transform: uppercase; letter-spacing: 0.09em;
+      font-size: 0.66rem;
+      color: var(--ink-mute);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
     }
+
     .mois-select select {
-      border: none; outline: none; font-size: 0.85rem;
-      font-family: inherit; color: var(--ink); font-weight: 500;
-      background: transparent; cursor: pointer;
+      border: none;
+      outline: none;
+      font-size: 0.85rem;
+      font-family: inherit;
+      color: var(--ink);
+      font-weight: 500;
+      background: transparent;
+      cursor: pointer;
     }
 
     /* Divider ornement réutilisable */
     .orn-div {
-      display: flex; align-items: center; gap: 12px; margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
     }
-    .orn-div .ol { flex:1; height:1px; background: var(--line); }
-    .orn-div .od { width:5px; height:5px; background:var(--gold); transform:rotate(45deg); flex-shrink:0; }
+
+    .orn-div .ol {
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .orn-div .od {
+      width: 5px;
+      height: 5px;
+      background: var(--gold);
+      transform: rotate(45deg);
+      flex-shrink: 0;
+    }
 
     /* ══ KPI GRID ══════════════════════════════════════════ */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(196px, 1fr));
-      gap: 14px; margin-bottom: 36px;
+      gap: 14px;
+      margin-bottom: 36px;
     }
+
     .kpi-card {
-      background: var(--white); border: 1px solid var(--line);
-      border-radius: var(--radius); padding: 24px 22px;
-      box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px 22px;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
       transition: transform .2s, box-shadow .2s;
     }
-    .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-    .kpi-card::before {
-      content: ''; position: absolute; top:0; left:0;
-      width: 3px; height: 100%; background: var(--kpi-accent, var(--gold));
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
     }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--kpi-accent, var(--gold));
+    }
+
     .kpi-card::after {
-      content: ''; position: absolute; top:0; right:0;
-      width:52px; height:52px;
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 52px;
+      height: 52px;
       background: radial-gradient(circle at top right, var(--kpi-lt, var(--gold-lt)) 0%, transparent 70%);
       opacity: .55;
     }
-    .kpi-card.ok      { --kpi-accent:var(--pos);   --kpi-lt:var(--green-lt); }
-    .kpi-card.warning { --kpi-accent:var(--neu);   --kpi-lt:var(--amber-lt); }
-    .kpi-card.danger  { --kpi-accent:var(--neg);   --kpi-lt:var(--red-lt);   }
-    .kpi-card.info    { --kpi-accent:var(--gold);  --kpi-lt:var(--gold-lt);  }
 
-    .kpi-icon  { font-size: 1.25rem; margin-bottom: 14px; display: block; }
-    .kpi-val   {
+    .kpi-card.ok {
+      --kpi-accent: var(--pos);
+      --kpi-lt: var(--green-lt);
+    }
+
+    .kpi-card.warning {
+      --kpi-accent: var(--neu);
+      --kpi-lt: var(--amber-lt);
+    }
+
+    .kpi-card.danger {
+      --kpi-accent: var(--neg);
+      --kpi-lt: var(--red-lt);
+    }
+
+    .kpi-card.info {
+      --kpi-accent: var(--gold);
+      --kpi-lt: var(--gold-lt);
+    }
+
+    .kpi-icon {
+      font-size: 1.25rem;
+      margin-bottom: 14px;
+      display: block;
+    }
+
+    .kpi-val {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 2.5rem; font-weight: 300; line-height: 1;
-      color: var(--ink); letter-spacing: -0.02em;
+      font-size: 2.5rem;
+      font-weight: 300;
+      line-height: 1;
+      color: var(--ink);
+      letter-spacing: -0.02em;
     }
+
     .kpi-label {
-      font-size: 0.66rem; font-weight: 500; color: var(--ink-mute);
-      text-transform: uppercase; letter-spacing: 0.1em; margin-top: 7px;
+      font-size: 0.66rem;
+      font-weight: 500;
+      color: var(--ink-mute);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: 7px;
     }
-    .kpi-sub { font-size: 0.7rem; color: var(--ink-mute); margin-top: 5px; font-weight: 300; }
+
+    .kpi-sub {
+      font-size: 0.7rem;
+      color: var(--ink-mute);
+      margin-top: 5px;
+      font-weight: 300;
+    }
 
     /* ══ SECTION HEADERS ═══════════════════════════════════ */
     .section-header {
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       margin-bottom: 18px;
     }
+
     .section-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 1.3rem; font-weight: 400; color: var(--ink);
-      display: flex; align-items: center; gap: 10px; letter-spacing: 0.01em;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: 0.01em;
     }
-    .section-title em { font-style: italic; color: var(--gold); }
+
+    .section-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
 
     /* ══ BURNOUT BANNER ════════════════════════════════════ */
     .burnout-banner {
       background: var(--ink);
-      border: 1px solid rgba(192,57,43,.35);
+      border: 1px solid rgba(192, 57, 43, .35);
       border-left: 3px solid var(--red);
-      border-radius: var(--radius); padding: 20px 28px;
+      border-radius: var(--radius);
+      padding: 20px 28px;
       margin-bottom: 32px;
-      display: flex; align-items: flex-start; gap: 18px;
-      position: relative; overflow: hidden;
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      position: relative;
+      overflow: hidden;
       animation: pulse-border 2.5s ease-in-out infinite;
     }
+
     @keyframes pulse-border {
-      0%,100% { box-shadow: var(--shadow-sm); }
-      50%      { box-shadow: 0 0 0 4px rgba(192,57,43,.1), var(--shadow-md); }
+
+      0%,
+      100% {
+        box-shadow: var(--shadow-sm);
+      }
+
+      50% {
+        box-shadow: 0 0 0 4px rgba(192, 57, 43, .1), var(--shadow-md);
+      }
     }
-    .burnout-banner .bi { font-size: 1.9rem; flex-shrink: 0; }
-    .burnout-banner h3  {
+
+    .burnout-banner .bi {
+      font-size: 1.9rem;
+      flex-shrink: 0;
+    }
+
+    .burnout-banner h3 {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 1.1rem; font-weight: 400; color: var(--white); margin-bottom: 5px;
+      font-size: 1.1rem;
+      font-weight: 400;
+      color: var(--white);
+      margin-bottom: 5px;
     }
-    .burnout-banner p   { font-size: 0.81rem; color: rgba(255,255,255,.55); line-height: 1.65; font-weight: 300; }
-    .burnout-banner p strong { color: rgba(255,255,255,.8); font-weight: 500; }
+
+    .burnout-banner p {
+      font-size: 0.81rem;
+      color: rgba(255, 255, 255, .55);
+      line-height: 1.65;
+      font-weight: 300;
+    }
+
+    .burnout-banner p strong {
+      color: rgba(255, 255, 255, .8);
+      font-weight: 500;
+    }
 
     /* ══ THEMES GRID ═══════════════════════════════════════ */
     .themes-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-      gap: 18px; margin-bottom: 42px;
+      gap: 18px;
+      margin-bottom: 42px;
     }
+
     .theme-card {
-      background: var(--white); border: 1px solid var(--line);
-      border-radius: var(--radius); overflow: hidden;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
       box-shadow: var(--shadow-sm);
       transition: box-shadow .25s, transform .2s;
     }
-    .theme-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+    .theme-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
 
     .theme-card-top {
       padding: 18px 22px 0;
       border-left: 3px solid var(--t-color, var(--gold));
     }
+
     .theme-card-header {
-      display: flex; justify-content: space-between; align-items: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 16px;
     }
+
     .theme-name {
-      font-size: 0.88rem; font-weight: 500; color: var(--ink);
-      display: flex; align-items: center; gap: 8px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
+
     .urgence-badge {
-      font-size: 0.64rem; font-weight: 500; padding: 3px 10px;
-      border-radius: var(--radius); letter-spacing: 0.05em;
-      text-transform: uppercase; border: 1px solid currentColor;
+      font-size: 0.64rem;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: var(--radius);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border: 1px solid currentColor;
     }
-    .urgence-badge.critique  { background:var(--red-lt);   color:var(--red);   border-color:rgba(192,57,43,.22); }
-    .urgence-badge.haute     { background:var(--amber-lt); color:var(--amber); border-color:rgba(217,119,6,.22);  }
-    .urgence-badge.vigilance { background:#fffdf0;         color:#92690a;      border-color:rgba(146,105,10,.22); }
-    .urgence-badge.ok        { background:var(--green-lt); color:var(--green); border-color:rgba(45,106,79,.22);  }
+
+    .urgence-badge.critique {
+      background: var(--red-lt);
+      color: var(--red);
+      border-color: rgba(192, 57, 43, .22);
+    }
+
+    .urgence-badge.haute {
+      background: var(--amber-lt);
+      color: var(--amber);
+      border-color: rgba(217, 119, 6, .22);
+    }
+
+    .urgence-badge.vigilance {
+      background: #fffdf0;
+      color: #92690a;
+      border-color: rgba(146, 105, 10, .22);
+    }
+
+    .urgence-badge.ok {
+      background: var(--green-lt);
+      color: var(--green);
+      border-color: rgba(45, 106, 79, .22);
+    }
 
     .theme-chart-row {
-      display: flex; align-items: center; gap: 18px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
       padding: 0 22px 18px;
       border-left: 3px solid var(--t-color, var(--gold));
     }
-    .chart-wrap { width: 96px; height: 96px; flex-shrink:0; position: relative; }
+
+    .chart-wrap {
+      width: 96px;
+      height: 96px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
     .chart-center-label {
-      position: absolute; inset:0;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       pointer-events: none;
     }
+
     .chart-center-pct {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 1.3rem; font-weight: 400; line-height: 1;
+      font-size: 1.3rem;
+      font-weight: 400;
+      line-height: 1;
     }
+
     .chart-center-sub {
-      font-size: 0.54rem; color: var(--ink-mute); font-weight: 500;
-      text-transform: uppercase; letter-spacing: 0.08em; margin-top: 3px;
+      font-size: 0.54rem;
+      color: var(--ink-mute);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 3px;
     }
-    .chart-legend { flex: 1; }
+
+    .chart-legend {
+      flex: 1;
+    }
+
     .legend-row {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 5px 0; border-bottom: 1px solid var(--bg); font-size: 0.79rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--bg);
+      font-size: 0.79rem;
     }
-    .legend-row:last-child { border-bottom: none; }
-    .legend-dot  { width: 6px; height: 6px; border-radius: 50%; flex-shrink:0; }
-    .legend-name { display: flex; align-items: center; gap: 8px; color: var(--ink-soft); font-weight: 300; }
-    .legend-val  { font-weight: 500; color: var(--ink); font-family: 'DM Mono', monospace; font-size: 0.74rem; }
-    .legend-val small { color: var(--ink-mute); font-weight: 400; }
+
+    .legend-row:last-child {
+      border-bottom: none;
+    }
+
+    .legend-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ink-soft);
+      font-weight: 300;
+    }
+
+    .legend-val {
+      font-weight: 500;
+      color: var(--ink);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.74rem;
+    }
+
+    .legend-val small {
+      color: var(--ink-mute);
+      font-weight: 400;
+    }
 
     .theme-meta-row {
-      display: flex; justify-content: space-between;
-      padding: 10px 22px; background: var(--bg);
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 22px;
+      background: var(--bg);
       border-top: 1px solid var(--line);
-      font-size: 0.71rem; color: var(--ink-mute); font-weight: 300;
+      font-size: 0.71rem;
+      color: var(--ink-mute);
+      font-weight: 300;
     }
-    .theme-meta-row strong { color: var(--ink-soft); font-weight: 500; }
+
+    .theme-meta-row strong {
+      color: var(--ink-soft);
+      font-weight: 500;
+    }
 
     /* ══ SYNTHÈSE LLM ══════════════════════════════════════ */
     .synthese-panel {
-      background: var(--white); border: 1px solid var(--line);
-      border-radius: var(--radius); box-shadow: var(--shadow-sm);
-      margin-bottom: 42px; overflow: hidden;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 42px;
+      overflow: hidden;
     }
+
     .synthese-header {
-      background: var(--ink); padding: 22px 32px;
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 14px;
-      border-bottom: 1px solid rgba(201,169,110,.18);
+      background: var(--ink);
+      padding: 22px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      border-bottom: 1px solid rgba(201, 169, 110, .18);
     }
+
     .synthese-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 1.1rem; font-weight: 400; color: var(--white);
-      display: flex; align-items: center; gap: 9px; letter-spacing: 0.01em;
+      font-size: 1.1rem;
+      font-weight: 400;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      letter-spacing: 0.01em;
     }
-    .synthese-title em { font-style: italic; color: var(--gold); }
-    .synthese-meta { font-size: 0.7rem; color: rgba(255,255,255,.38); margin-top: 4px; font-weight: 300; }
+
+    .synthese-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .synthese-meta {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, .38);
+      margin-top: 4px;
+      font-weight: 300;
+    }
 
     .btn-generate {
       background: transparent;
-      border: 1px solid rgba(201,169,110,.45);
-      color: var(--gold); padding: 10px 24px;
-      border-radius: var(--radius); font-size: 0.7rem; font-weight: 500;
-      letter-spacing: 0.09em; text-transform: uppercase;
-      cursor: pointer; font-family: inherit;
-      display: flex; align-items: center; gap: 10px;
-      transition: background .2s, color .2s; position: relative; overflow: hidden;
+      border: 1px solid rgba(201, 169, 110, .45);
+      color: var(--gold);
+      padding: 10px 24px;
+      border-radius: var(--radius);
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background .2s, color .2s;
+      position: relative;
+      overflow: hidden;
     }
+
     .btn-generate::before {
-      content: ''; position: absolute; top:0; left:-100%;
-      width:100%; height:100%;
-      background: linear-gradient(90deg, transparent, rgba(201,169,110,.1), transparent);
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(201, 169, 110, .1), transparent);
       transition: left .5s;
     }
-    .btn-generate:hover { background: var(--gold); color: var(--ink); }
-    .btn-generate:hover::before { left: 100%; }
-    .btn-generate:disabled { opacity: .4; cursor: not-allowed; }
+
+    .btn-generate:hover {
+      background: var(--gold);
+      color: var(--ink);
+    }
+
+    .btn-generate:hover::before {
+      left: 100%;
+    }
+
+    .btn-generate:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+
     .btn-generate .spinner {
-      width: 12px; height: 12px;
-      border: 1.5px solid rgba(201,169,110,.25);
-      border-top-color: var(--gold); border-radius: 50%;
-      animation: spin .7s linear infinite; display: none;
+      width: 12px;
+      height: 12px;
+      border: 1.5px solid rgba(201, 169, 110, .25);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .synthese-body { padding: 32px; }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .synthese-body {
+      padding: 32px;
+    }
+
     .synthese-placeholder {
-      text-align: center; padding: 52px 20px; color: var(--ink-mute);
+      text-align: center;
+      padding: 52px 20px;
+      color: var(--ink-mute);
     }
-    .synthese-placeholder .ph-icon { font-size: 2.4rem; margin-bottom: 14px; display: block; opacity: .4; }
-    .synthese-placeholder p { font-size: 0.85rem; line-height: 1.7; font-weight: 300; }
-    .synthese-placeholder strong { font-weight: 500; color: var(--ink-soft); }
 
-    .synthese-content         { display: none; }
-    .synthese-content.visible { display: block; }
+    .synthese-placeholder .ph-icon {
+      font-size: 2.4rem;
+      margin-bottom: 14px;
+      display: block;
+      opacity: .4;
+    }
 
-    .synthese-section { margin-bottom: 28px; }
+    .synthese-placeholder p {
+      font-size: 0.85rem;
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    .synthese-placeholder strong {
+      font-weight: 500;
+      color: var(--ink-soft);
+    }
+
+    .synthese-content {
+      display: none;
+    }
+
+    .synthese-content.visible {
+      display: block;
+    }
+
+    .synthese-section {
+      margin-bottom: 28px;
+    }
+
     .synthese-section h3 {
-      font-size: 0.66rem; font-weight: 500; text-transform: uppercase;
-      letter-spacing: 0.11em; color: var(--ink-mute);
-      margin-bottom: 14px; padding-bottom: 10px;
+      font-size: 0.66rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: var(--ink-mute);
+      margin-bottom: 14px;
+      padding-bottom: 10px;
       border-bottom: 1px solid var(--line);
     }
-    .synthese-text { font-size: 0.9rem; line-height: 1.8; color: var(--ink-soft); font-weight: 300; }
 
-    .pill-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .synthese-text {
+      font-size: 0.9rem;
+      line-height: 1.8;
+      color: var(--ink-soft);
+      font-weight: 300;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
     .pill {
-      padding: 4px 12px; border-radius: var(--radius);
-      font-size: 0.73rem; font-weight: 500;
-      border: 1px solid currentColor; letter-spacing: 0.03em;
+      padding: 4px 12px;
+      border-radius: var(--radius);
+      font-size: 0.73rem;
+      font-weight: 500;
+      border: 1px solid currentColor;
+      letter-spacing: 0.03em;
     }
-    .pill.danger  { background:var(--red-lt);   color:var(--red);   border-color:rgba(192,57,43,.22); }
-    .pill.warning { background:var(--amber-lt); color:var(--amber); border-color:rgba(217,119,6,.22); }
-    .pill.success { background:var(--green-lt); color:var(--green); border-color:rgba(45,106,79,.22); }
 
-    .action-list { list-style: none; padding: 0; margin-top: 12px; }
-    .action-list li {
-      display: flex; align-items: flex-start; gap: 14px;
-      padding: 10px 0; border-bottom: 1px solid var(--bg);
-      font-size: 0.86rem; color: var(--ink-soft); font-weight: 300; line-height: 1.6;
+    .pill.danger {
+      background: var(--red-lt);
+      color: var(--red);
+      border-color: rgba(192, 57, 43, .22);
     }
-    .action-list li:last-child { border-bottom: none; }
+
+    .pill.warning {
+      background: var(--amber-lt);
+      color: var(--amber);
+      border-color: rgba(217, 119, 6, .22);
+    }
+
+    .pill.success {
+      background: var(--green-lt);
+      color: var(--green);
+      border-color: rgba(45, 106, 79, .22);
+    }
+
+    .action-list {
+      list-style: none;
+      padding: 0;
+      margin-top: 12px;
+    }
+
+    .action-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--bg);
+      font-size: 0.86rem;
+      color: var(--ink-soft);
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    .action-list li:last-child {
+      border-bottom: none;
+    }
+
     .action-list li .num {
-      background: var(--ink); color: var(--white);
-      width: 20px; height: 20px; border-radius: 50%;
-      font-size: 0.64rem; font-weight: 500;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; margin-top: 2px;
+      background: var(--ink);
+      color: var(--white);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      font-size: 0.64rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
     }
 
     .synthese-footer {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 32px; background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 32px;
+      background: var(--bg);
       border-top: 1px solid var(--line);
-      font-size: 0.7rem; color: var(--ink-mute);
-      flex-wrap: wrap; gap: 10px; font-weight: 300;
+      font-size: 0.7rem;
+      color: var(--ink-mute);
+      flex-wrap: wrap;
+      gap: 10px;
+      font-weight: 300;
     }
-    .synthese-footer strong { color: var(--ink-soft); font-weight: 500; }
+
+    .synthese-footer strong {
+      color: var(--ink-soft);
+      font-weight: 500;
+    }
+
     .btn-copy {
-      background: none; border: 1px solid var(--line); color: var(--ink-mute);
-      padding: 5px 14px; border-radius: var(--radius);
-      font-size: 0.68rem; font-weight: 500; letter-spacing: 0.05em;
-      text-transform: uppercase; cursor: pointer; font-family: inherit;
+      background: none;
+      border: 1px solid var(--line);
+      color: var(--ink-mute);
+      padding: 5px 14px;
+      border-radius: var(--radius);
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: inherit;
       transition: background .2s;
     }
-    .btn-copy:hover { background: var(--line); }
+
+    .btn-copy:hover {
+      background: var(--line);
+    }
 
     .cursor {
-      display: inline-block; width: 1.5px; height: 1em;
-      background: var(--gold); margin-left: 2px;
-      animation: blink .7s step-end infinite; vertical-align: text-bottom;
+      display: inline-block;
+      width: 1.5px;
+      height: 1em;
+      background: var(--gold);
+      margin-left: 2px;
+      animation: blink .7s step-end infinite;
+      vertical-align: text-bottom;
     }
-    @keyframes blink { 50%{opacity:0;} }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
 
     /* ══ RECOMMANDATIONS ═══════════════════════════════════ */
     .reco-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-      gap: 18px; margin-bottom: 42px;
+      gap: 18px;
+      margin-bottom: 42px;
     }
+
     .reco-card {
-      background: var(--white); border: 1px solid var(--line);
-      border-radius: var(--radius); overflow: hidden;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
       box-shadow: var(--shadow-sm);
       transition: transform .2s, box-shadow .2s;
     }
-    .reco-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+    .reco-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
 
     .reco-card-top {
-      padding: 18px 24px; background: var(--r-color, var(--ink));
-      display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      position: relative; overflow: hidden;
+      padding: 18px 24px;
+      background: var(--r-color, var(--ink));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+      position: relative;
+      overflow: hidden;
     }
+
     .reco-card-top::after {
-      content: ''; position: absolute; top:0; right:0; bottom:0; width:90px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.06));
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 90px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .06));
     }
-    .reco-titre { font-size: 0.88rem; font-weight: 500; color: white; display: flex; align-items: center; gap: 9px; }
-    .pct-badge  {
-      background: rgba(255,255,255,.16); color: white;
-      padding: 3px 12px; border-radius: var(--radius);
-      font-size: 0.68rem; font-weight: 500; letter-spacing: 0.04em;
-      border: 1px solid rgba(255,255,255,.18);
+
+    .reco-titre {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 9px;
     }
-    .reco-body { padding: 22px 24px; }
+
+    .pct-badge {
+      background: rgba(255, 255, 255, .16);
+      color: white;
+      padding: 3px 12px;
+      border-radius: var(--radius);
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      border: 1px solid rgba(255, 255, 255, .18);
+    }
+
+    .reco-body {
+      padding: 22px 24px;
+    }
+
     .reco-action-directe {
-      background: var(--amber-lt); border-left: 2px solid var(--amber);
-      padding: 11px 16px; border-radius: 0 var(--radius) var(--radius) 0;
-      font-weight: 500; font-size: 0.84rem; color: var(--amber);
-      margin-bottom: 18px; line-height: 1.5;
+      background: var(--amber-lt);
+      border-left: 2px solid var(--amber);
+      padding: 11px 16px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-weight: 500;
+      font-size: 0.84rem;
+      color: var(--amber);
+      margin-bottom: 18px;
+      line-height: 1.5;
     }
+
     .reco-horizon h4 {
-      font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.1em;
-      color: var(--ink-mute); font-weight: 500; margin-bottom: 10px;
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-mute);
+      font-weight: 500;
+      margin-bottom: 10px;
     }
-    .reco-horizon ul { list-style: none; padding: 0; margin-bottom: 16px; }
+
+    .reco-horizon ul {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 16px;
+    }
+
     .reco-horizon ul li {
-      font-size: 0.82rem; color: var(--ink-soft); padding: 5px 0;
+      font-size: 0.82rem;
+      color: var(--ink-soft);
+      padding: 5px 0;
       border-bottom: 1px solid var(--bg);
-      display: flex; align-items: flex-start; gap: 10px;
-      font-weight: 300; line-height: 1.55;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-weight: 300;
+      line-height: 1.55;
     }
-    .reco-horizon ul li:last-child { border-bottom: none; }
-    .reco-horizon ul li::before { content: "—"; color: var(--gold); flex-shrink:0; font-size: 0.7rem; margin-top:1px; }
+
+    .reco-horizon ul li:last-child {
+      border-bottom: none;
+    }
+
+    .reco-horizon ul li::before {
+      content: "—";
+      color: var(--gold);
+      flex-shrink: 0;
+      font-size: 0.7rem;
+      margin-top: 1px;
+    }
+
     .reco-kpi {
-      background: var(--bg); border-radius: var(--radius);
+      background: var(--bg);
+      border-radius: var(--radius);
       border: 1px solid var(--line);
-      padding: 12px 16px; font-size: 0.78rem;
-      color: var(--ink-soft); margin-top: 16px; line-height: 1.7; font-weight: 300;
+      padding: 12px 16px;
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      margin-top: 16px;
+      line-height: 1.7;
+      font-weight: 300;
     }
-    .reco-kpi strong { font-weight: 500; color: var(--ink); }
+
+    .reco-kpi strong {
+      font-weight: 500;
+      color: var(--ink);
+    }
 
     /* ══ CHART TENDANCE ════════════════════════════════════ */
     .chart-container {
-      background: var(--white); border: 1px solid var(--line);
-      border-radius: var(--radius); padding: 32px;
-      box-shadow: var(--shadow-sm); margin-bottom: 42px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 32px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 42px;
     }
-    .chart-container canvas { max-height: 280px; }
+
+    .chart-container canvas {
+      max-height: 280px;
+    }
 
     /* ══ EMPTY STATE ═══════════════════════════════════════ */
     .empty-state {
-      text-align: center; padding: 64px 20px; color: var(--ink-mute);
-      background: var(--white); border: 1px solid var(--line);
-      border-radius: var(--radius); margin-bottom: 42px;
+      text-align: center;
+      padding: 64px 20px;
+      color: var(--ink-mute);
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      margin-bottom: 42px;
     }
-    .empty-state .es-icon { font-size: 2.4rem; margin-bottom: 16px; display: block; opacity: .4; }
+
+    .empty-state .es-icon {
+      font-size: 2.4rem;
+      margin-bottom: 16px;
+      display: block;
+      opacity: .4;
+    }
+
     .empty-state h3 {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 1.3rem; font-weight: 300; color: var(--ink-soft); margin-bottom: 10px;
+      font-size: 1.3rem;
+      font-weight: 300;
+      color: var(--ink-soft);
+      margin-bottom: 10px;
     }
-    .empty-state p { font-size: 0.83rem; line-height: 1.7; font-weight: 300; }
+
+    .empty-state p {
+      font-size: 0.83rem;
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
     .empty-state a {
-      color: var(--gold); text-decoration: none;
-      border-bottom: 1px solid rgba(201,169,110,.35);
+      color: var(--gold);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(201, 169, 110, .35);
       transition: border-color .2s;
     }
-    .empty-state a:hover { border-color: var(--gold); }
+
+    .empty-state a:hover {
+      border-color: var(--gold);
+    }
 
     /* ══ FOOTER ════════════════════════════════════════════ */
     footer {
-      text-align: center; padding: 28px 20px;
-      color: var(--ink-mute); font-size: 0.68rem; font-weight: 300;
-      letter-spacing: 0.05em; border-top: 1px solid var(--line);
+      text-align: center;
+      padding: 28px 20px;
+      color: var(--ink-mute);
+      font-size: 0.68rem;
+      font-weight: 300;
+      letter-spacing: 0.05em;
+      border-top: 1px solid var(--line);
     }
 
     /* ══ ANIMATIONS ════════════════════════════════════════ */
-    .fade-in { animation: fadeUp .45s cubic-bezier(.16,1,.3,1) both; }
+    .fade-in {
+      animation: fadeUp .45s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
     @keyframes fadeUp {
-      from { opacity:0; transform:translateY(8px); }
-      to   { opacity:1; transform:none; }
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
     }
   </style>
 </head>
+
 <body>
 
-<!-- NAV -->
-<nav>
-  <div class="nav-logo">
-    <div class="logo-orn">
-      <span class="lo-line"></span>
-      <span class="lo-dim"></span>
-      <span class="lo-line r"></span>
-    </div>
-    QVT Agent
-  </div>
-  <div class="nav-actions">
-    {% if model_info %}
-    <span class="model-badge">⚙ {{ model_info.active_model }}</span>
-    {% endif %}
-    <a href="/" class="nav-link">Formulaire</a>
-    <a href="/dashboard" class="nav-btn">Actualiser</a>
-  </div>
-</nav>
-
-<div class="container">
-
-  <!-- HEADER -->
-  <div class="page-header fade-in">
-    <div>
-      <div class="page-header-eyebrow">Tableau de bord</div>
-      <h1>Qualité de vie <em>au travail</em></h1>
-      <div class="page-header-meta">
-        <span class="meta-text">Données agrégées et anonymisées · Règle N≥5</span>
-        <span class="last-update">
-          <span class="dot-live"></span>
-          {{ now_str }}
-        </span>
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-orn">
+        <span class="lo-line"></span>
+        <span class="lo-dim"></span>
+        <span class="lo-line r"></span>
       </div>
+      QVT Agent
     </div>
-    <form method="GET" action="/dashboard">
-      <div class="mois-select">
-        <label>Période</label>
-        <select name="mois" onchange="this.form.submit()">
-          {% for m in mois_dispo %}
-          <option value="{{ m }}" {% if m == mois_selec %}selected{% endif %}>{{ m }}</option>
-          {% endfor %}
-        </select>
-      </div>
-    </form>
-  </div>
-
-  <!-- KPI -->
-  <div class="kpi-grid fade-in">
-    <div class="kpi-card {% if score_global.score_global >= 0.3 %}ok{% elif score_global.score_global >= -0.3 %}warning{% else %}danger{% endif %}">
-      <span class="kpi-icon">{% if score_global.score_global >= 0.3 %}😊{% elif score_global.score_global >= -0.3 %}😐{% else %}😟{% endif %}</span>
-      <div class="kpi-val">{{ "%.2f"|format(score_global.score_global) }}</div>
-      <div class="kpi-label">Sentiment global</div>
-      <div class="kpi-sub">Échelle −1.0 → +1.0</div>
+    <div class="nav-actions">
+      {% if model_info %}
+      <span class="model-badge">⚙ {{ model_info.active_model }}</span>
+      {% endif %}
+      <a href="/" class="nav-link">Formulaire</a>
+      <a href="/dashboard" class="nav-btn">Actualiser</a>
+      <button onclick="logout()" class="nav-link"
+        style="background:none; border:none; cursor:pointer; margin-left:10px;">Déconnexion</button>
     </div>
+  </nav>
 
-    <div class="kpi-card info">
-      <span class="kpi-icon">📬</span>
-      <div class="kpi-val">{{ score_global.total }}</div>
-      <div class="kpi-label">Retours reçus</div>
-      <div class="kpi-sub">Anonymisés et agrégés</div>
-    </div>
+  <div class="container">
 
-    {% if score_global.note_globale %}
-    <div class="kpi-card {% if score_global.note_globale >= 4 %}ok{% elif score_global.note_globale >= 3 %}warning{% else %}danger{% endif %}">
-      <span class="kpi-icon">⭐</span>
-      <div class="kpi-val">{{ score_global.note_globale }}/5</div>
-      <div class="kpi-label">Bien-être déclaré</div>
-      <div class="kpi-sub">Score quanti 1→5</div>
-    </div>
-    {% endif %}
-
-    <div class="kpi-card {% if alerte_burnout.alerte %}danger{% else %}ok{% endif %}">
-      <span class="kpi-icon">{% if alerte_burnout.alerte %}🚨{% else %}✅{% endif %}</span>
-      <div class="kpi-val">{{ alerte_burnout.nb_signaux }}</div>
-      <div class="kpi-label">Signaux détresse</div>
-      <div class="kpi-sub">{% if alerte_burnout.alerte %}⚠️ Seuil ≥ 3 atteint{% else %}En dessous du seuil{% endif %}</div>
-    </div>
-
-    <div class="kpi-card {% if stats_themes|length > 0 %}ok{% else %}warning{% endif %}">
-      <span class="kpi-icon">🏷️</span>
-      <div class="kpi-val">{{ stats_themes|length }}</div>
-      <div class="kpi-label">Thèmes actifs</div>
-      <div class="kpi-sub">≥ 5 retours par thème</div>
-    </div>
-  </div>
-
-  <!-- BURNOUT -->
-  {% if alerte_burnout.alerte %}
-  <div class="burnout-banner fade-in">
-    <div class="bi">⚠️</div>
-    <div>
-      <h3>Alerte détresse — {{ alerte_burnout.nb_signaux }} signal(aux) ce mois</h3>
-      <p>Des collaborateurs expriment des signaux de détresse importants.
-         Déployer une ligne d'écoute psychologique confidentielle.
-         <strong>Ces données sont strictement agrégées — aucune personne n'est identifiable.</strong></p>
-    </div>
-  </div>
-  {% endif %}
-
-  <!-- THÈMES -->
-  <div class="section-header">
-    <div class="section-title">Analyse par <em>thème</em> — {{ mois_selec }}</div>
-  </div>
-  <div class="orn-div"><span class="ol"></span><span class="od"></span><span class="ol"></span></div>
-
-  {% if stats_themes %}
-  <div class="themes-grid">
-    {% for stat in stats_themes %}
-    <div class="theme-card fade-in" style="--t-color: {{ stat.color }}">
-      <div class="theme-card-top">
-        <div class="theme-card-header">
-          <div class="theme-name">{{ stat.emoji }} {{ stat.label }}</div>
-          <span class="urgence-badge {{ stat.urgence }}">{{ stat.urgence_label }}</span>
+    <!-- HEADER -->
+    <div class="page-header fade-in">
+      <div>
+        <div class="page-header-eyebrow">Tableau de bord</div>
+        <h1>Qualité de vie <em>au travail</em></h1>
+        <div class="page-header-meta">
+          <span class="meta-text">Données agrégées et anonymisées · Règle N≥5</span>
+          <span class="last-update">
+            <span class="dot-live"></span>
+            {{ now_str }}
+          </span>
         </div>
       </div>
-      <div class="theme-chart-row">
-        <div class="chart-wrap">
-          <canvas
-            id="donut-{{ loop.index }}"
-            width="96" height="96"
-            data-neg="{{ stat.pct_negatif }}"
-            data-neu="{{ stat.pct_neutre }}"
-            data-pos="{{ stat.pct_positif }}"
-          ></canvas>
-          <div class="chart-center-label">
-            <span class="chart-center-pct" style="color:
+      <form method="GET" action="/dashboard">
+        <div class="mois-select">
+          <label>Période</label>
+          <select name="mois" onchange="this.form.submit()">
+            {% for m in mois_dispo %}
+            <option value="{{ m }}" {% if m==mois_selec %}selected{% endif %}>{{ m }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </form>
+    </div>
+
+    <!-- KPI -->
+    <div class="kpi-grid fade-in">
+      <div
+        class="kpi-card {% if score_global.score_global >= 0.3 %}ok{% elif score_global.score_global >= -0.3 %}warning{% else %}danger{% endif %}">
+        <span class="kpi-icon">{% if score_global.score_global >= 0.3 %}😊{% elif score_global.score_global >= -0.3
+          %}😐{% else %}😟{% endif %}</span>
+        <div class="kpi-val">{{ "%.2f"|format(score_global.score_global) }}</div>
+        <div class="kpi-label">Sentiment global</div>
+        <div class="kpi-sub">Échelle −1.0 → +1.0</div>
+      </div>
+
+      <div class="kpi-card info">
+        <span class="kpi-icon">📬</span>
+        <div class="kpi-val">{{ score_global.total }}</div>
+        <div class="kpi-label">Retours reçus</div>
+        <div class="kpi-sub">Anonymisés et agrégés</div>
+      </div>
+
+      {% if score_global.note_globale %}
+      <div
+        class="kpi-card {% if score_global.note_globale >= 4 %}ok{% elif score_global.note_globale >= 3 %}warning{% else %}danger{% endif %}">
+        <span class="kpi-icon">⭐</span>
+        <div class="kpi-val">{{ score_global.note_globale }}/5</div>
+        <div class="kpi-label">Bien-être déclaré</div>
+        <div class="kpi-sub">Score quanti 1→5</div>
+      </div>
+      {% endif %}
+
+      <div class="kpi-card {% if alerte_burnout.alerte %}danger{% else %}ok{% endif %}">
+        <span class="kpi-icon">{% if alerte_burnout.alerte %}🚨{% else %}✅{% endif %}</span>
+        <div class="kpi-val">{{ alerte_burnout.nb_signaux }}</div>
+        <div class="kpi-label">Signaux détresse</div>
+        <div class="kpi-sub">{% if alerte_burnout.alerte %}⚠️ Seuil ≥ 3 atteint{% else %}En dessous du seuil{% endif %}
+        </div>
+      </div>
+
+      <div class="kpi-card {% if stats_themes|length > 0 %}ok{% else %}warning{% endif %}">
+        <span class="kpi-icon">🏷️</span>
+        <div class="kpi-val">{{ stats_themes|length }}</div>
+        <div class="kpi-label">Thèmes actifs</div>
+        <div class="kpi-sub">≥ 5 retours par thème</div>
+      </div>
+    </div>
+
+    <!-- BURNOUT -->
+    {% if alerte_burnout.alerte %}
+    <div class="burnout-banner fade-in">
+      <div class="bi">⚠️</div>
+      <div>
+        <h3>Alerte détresse — {{ alerte_burnout.nb_signaux }} signal(aux) ce mois</h3>
+        <p>Des collaborateurs expriment des signaux de détresse importants.
+          Déployer une ligne d'écoute psychologique confidentielle.
+          <strong>Ces données sont strictement agrégées — aucune personne n'est identifiable.</strong>
+        </p>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- THÈMES -->
+    <div class="section-header">
+      <div class="section-title">Analyse par <em>thème</em> — {{ mois_selec }}</div>
+    </div>
+    <div class="orn-div"><span class="ol"></span><span class="od"></span><span class="ol"></span></div>
+
+    {% if stats_themes %}
+    <div class="themes-grid">
+      {% for stat in stats_themes %}
+      <div class="theme-card fade-in" style="--t-color: {{ stat.color }}">
+        <div class="theme-card-top">
+          <div class="theme-card-header">
+            <div class="theme-name">{{ stat.emoji }} {{ stat.label }}</div>
+            <span class="urgence-badge {{ stat.urgence }}">{{ stat.urgence_label }}</span>
+          </div>
+        </div>
+        <div class="theme-chart-row">
+          <div class="chart-wrap">
+            <canvas id="donut-{{ loop.index }}" width="96" height="96" data-neg="{{ stat.pct_negatif }}"
+              data-neu="{{ stat.pct_neutre }}" data-pos="{{ stat.pct_positif }}"></canvas>
+            <div class="chart-center-label">
+              <span class="chart-center-pct" style="color:
               {% if stat.pct_negatif >= 60 %}var(--neg)
               {% elif stat.pct_negatif >= 40 %}var(--neu)
               {% else %}var(--pos){% endif %}">{{ stat.pct_negatif }}%</span>
-            <span class="chart-center-sub">nég.</span>
+              <span class="chart-center-sub">nég.</span>
+            </div>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-row">
+              <div class="legend-name">
+                <div class="legend-dot" style="background:var(--neg)"></div>Négatif
+              </div>
+              <span class="legend-val">{{ stat.pct_negatif }}% <small>({{ stat.nb_negatif }})</small></span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-name">
+                <div class="legend-dot" style="background:var(--neu)"></div>Neutre
+              </div>
+              <span class="legend-val">{{ stat.pct_neutre }}% <small>({{ stat.nb_neutre }})</small></span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-name">
+                <div class="legend-dot" style="background:var(--pos)"></div>Positif
+              </div>
+              <span class="legend-val">{{ stat.pct_positif }}% <small>({{ stat.nb_positif }})</small></span>
+            </div>
           </div>
         </div>
-        <div class="chart-legend">
-          <div class="legend-row">
-            <div class="legend-name"><div class="legend-dot" style="background:var(--neg)"></div>Négatif</div>
-            <span class="legend-val">{{ stat.pct_negatif }}% <small>({{ stat.nb_negatif }})</small></span>
+        <div class="theme-meta-row">
+          <span><strong>{{ stat.total }}</strong> retours</span>
+          <span>Score : <strong>{{ "%.2f"|format(stat.score_moyen) }}</strong></span>
+          {% if stat.note_moyenne %}<span>Note : <strong>{{ stat.note_moyenne }}/5</strong></span>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+      <span class="es-icon">📊</span>
+      <h3>Données insuffisantes</h3>
+      <p>Un minimum de 5 réponses par thème est requis pour afficher les résultats.<br>
+        <a href="/">Soumettre un retour →</a>
+      </p>
+    </div>
+    {% endif %}
+
+    <!-- SYNTHÈSE LLM -->
+    <div class="section-header">
+      <div class="section-title">Synthèse <em>mensuelle</em> — IA</div>
+    </div>
+    <div class="orn-div"><span class="ol"></span><span class="od"></span><span class="ol"></span></div>
+
+    <div class="synthese-panel fade-in">
+      <div class="synthese-header">
+        <div>
+          <div class="synthese-title">✦ Rapport narratif <em>automatique</em> — {{ mois_selec }}</div>
+          <div class="synthese-meta">Généré à partir des statistiques anonymisées · Aucune donnée personnelle transmise
           </div>
-          <div class="legend-row">
-            <div class="legend-name"><div class="legend-dot" style="background:var(--neu)"></div>Neutre</div>
-            <span class="legend-val">{{ stat.pct_neutre }}% <small>({{ stat.nb_neutre }})</small></span>
+        </div>
+        <button class="btn-generate" id="btnGenerate" onclick="genererSynthese()">
+          <span class="spinner" id="spinner"></span>
+          <span id="btnText">Générer la synthèse</span>
+        </button>
+      </div>
+      <div class="synthese-body">
+        <div class="synthese-placeholder" id="synthesePlaceholder">
+          <span class="ph-icon">📋</span>
+          <p>Cliquez sur <strong>Générer la synthèse</strong> pour obtenir une analyse narrative basée sur les
+            statistiques agrégées.</p>
+        </div>
+        <div class="synthese-content" id="syntheseContent">
+          <div class="synthese-section">
+            <h3>📊 Résumé exécutif</h3>
+            <div class="synthese-text" id="synResume"></div>
           </div>
-          <div class="legend-row">
-            <div class="legend-name"><div class="legend-dot" style="background:var(--pos)"></div>Positif</div>
-            <span class="legend-val">{{ stat.pct_positif }}% <small>({{ stat.nb_positif }})</small></span>
+          <div class="synthese-section">
+            <h3>⚠️ Points d'attention prioritaires</h3>
+            <div class="pill-list" id="synAlertes"></div>
+            <div class="synthese-text" id="synAlertesText" style="margin-top:14px"></div>
+          </div>
+          <div class="synthese-section">
+            <h3>✅ Points positifs à consolider</h3>
+            <div class="pill-list" id="synPositifs"></div>
+          </div>
+          <div class="synthese-section">
+            <h3>🎯 Actions recommandées</h3>
+            <ol class="action-list" id="synActions"></ol>
+          </div>
+          <div class="synthese-section">
+            <h3>📈 Tendance générale</h3>
+            <div class="synthese-text" id="synTendance"></div>
           </div>
         </div>
       </div>
-      <div class="theme-meta-row">
-        <span><strong>{{ stat.total }}</strong> retours</span>
-        <span>Score : <strong>{{ "%.2f"|format(stat.score_moyen) }}</strong></span>
-        {% if stat.note_moyenne %}<span>Note : <strong>{{ stat.note_moyenne }}/5</strong></span>{% endif %}
+      <div class="synthese-footer" id="syntheseFooter" style="display:none">
+        <span>Généré le <strong id="synDate"></strong> · Basé sur <strong>{{ score_global.total }}</strong> retours
+          anonymisés</span>
+        <button class="btn-copy" onclick="copierSynthese()">📋 Copier</button>
       </div>
     </div>
-    {% endfor %}
-  </div>
 
-  {% else %}
-  <div class="empty-state">
-    <span class="es-icon">📊</span>
-    <h3>Données insuffisantes</h3>
-    <p>Un minimum de 5 réponses par thème est requis pour afficher les résultats.<br>
-       <a href="/">Soumettre un retour →</a></p>
-  </div>
-  {% endif %}
-
-  <!-- SYNTHÈSE LLM -->
-  <div class="section-header">
-    <div class="section-title">Synthèse <em>mensuelle</em> — IA</div>
-  </div>
-  <div class="orn-div"><span class="ol"></span><span class="od"></span><span class="ol"></span></div>
-
-  <div class="synthese-panel fade-in">
-    <div class="synthese-header">
-      <div>
-        <div class="synthese-title">✦ Rapport narratif <em>automatique</em> — {{ mois_selec }}</div>
-        <div class="synthese-meta">Généré à partir des statistiques anonymisées · Aucune donnée personnelle transmise</div>
-      </div>
-      <button class="btn-generate" id="btnGenerate" onclick="genererSynthese()">
-        <span class="spinner" id="spinner"></span>
-        <span id="btnText">Générer la synthèse</span>
-      </button>
-    </div>
-    <div class="synthese-body">
-      <div class="synthese-placeholder" id="synthesePlaceholder">
-        <span class="ph-icon">📋</span>
-        <p>Cliquez sur <strong>Générer la synthèse</strong> pour obtenir une analyse narrative basée sur les statistiques agrégées.</p>
-      </div>
-      <div class="synthese-content" id="syntheseContent">
-        <div class="synthese-section">
-          <h3>📊 Résumé exécutif</h3>
-          <div class="synthese-text" id="synResume"></div>
-        </div>
-        <div class="synthese-section">
-          <h3>⚠️ Points d'attention prioritaires</h3>
-          <div class="pill-list" id="synAlertes"></div>
-          <div class="synthese-text" id="synAlertesText" style="margin-top:14px"></div>
-        </div>
-        <div class="synthese-section">
-          <h3>✅ Points positifs à consolider</h3>
-          <div class="pill-list" id="synPositifs"></div>
-        </div>
-        <div class="synthese-section">
-          <h3>🎯 Actions recommandées</h3>
-          <ol class="action-list" id="synActions"></ol>
-        </div>
-        <div class="synthese-section">
-          <h3>📈 Tendance générale</h3>
-          <div class="synthese-text" id="synTendance"></div>
-        </div>
+    <!-- RECOMMANDATIONS -->
+    {% if recommandations %}
+    <div class="section-header">
+      <div class="section-title">Recommandations <em>prioritaires</em>
+        <span style="font-family:'DM Sans';font-size:0.78rem;font-style:normal;color:var(--ink-mute);font-weight:300;">—
+          Seuil 60% atteint</span>
       </div>
     </div>
-    <div class="synthese-footer" id="syntheseFooter" style="display:none">
-      <span>Généré le <strong id="synDate"></strong> · Basé sur <strong>{{ score_global.total }}</strong> retours anonymisés</span>
-      <button class="btn-copy" onclick="copierSynthese()">📋 Copier</button>
-    </div>
-  </div>
-
-  <!-- RECOMMANDATIONS -->
-  {% if recommandations %}
-  <div class="section-header">
-    <div class="section-title">Recommandations <em>prioritaires</em>
-      <span style="font-family:'DM Sans';font-size:0.78rem;font-style:normal;color:var(--ink-mute);font-weight:300;">— Seuil 60% atteint</span>
-    </div>
-  </div>
-  <div class="orn-div"><span class="ol"></span><span class="od"></span><span class="ol"></span></div>
-  <div class="reco-grid">
-    {% for reco in recommandations %}
-    <div class="reco-card fade-in" style="--r-color: {{ reco.color }}">
-      <div class="reco-card-top">
-        <div class="reco-titre">{{ reco.emoji }} {{ reco.label }}</div>
-        <span class="pct-badge">{{ reco.pct_negatif }}% négatif</span>
-      </div>
-      <div class="reco-body">
-        <div class="reco-action-directe">{{ reco.action_directe }}</div>
-        <div class="reco-horizon">
-          <h4>Court terme — &lt; 2 semaines</h4>
-          <ul>{% for a in reco.actions.court_terme %}<li>{{ a }}</li>{% endfor %}</ul>
+    <div class="orn-div"><span class="ol"></span><span class="od"></span><span class="ol"></span></div>
+    <div class="reco-grid">
+      {% for reco in recommandations %}
+      <div class="reco-card fade-in" style="--r-color: {{ reco.color }}">
+        <div class="reco-card-top">
+          <div class="reco-titre">{{ reco.emoji }} {{ reco.label }}</div>
+          <span class="pct-badge">{{ reco.pct_negatif }}% négatif</span>
         </div>
-        <div class="reco-horizon">
-          <h4>Moyen terme — 1 à 3 mois</h4>
-          <ul>{% for a in reco.actions.moyen_terme %}<li>{{ a }}</li>{% endfor %}</ul>
-        </div>
-        <div class="reco-horizon">
-          <h4>Long terme — 3 à 12 mois</h4>
-          <ul>{% for a in reco.actions.long_terme %}<li>{{ a }}</li>{% endfor %}</ul>
-        </div>
-        <div class="reco-kpi">
-          <strong>KPI à suivre :</strong> {{ reco.kpi | join(" · ") }}<br>
-          <strong>Risque si inaction :</strong> {{ reco.risque }}
+        <div class="reco-body">
+          <div class="reco-action-directe">{{ reco.action_directe }}</div>
+          <div class="reco-horizon">
+            <h4>Court terme — &lt; 2 semaines</h4>
+            <ul>{% for a in reco.actions.court_terme %}<li>{{ a }}</li>{% endfor %}</ul>
+          </div>
+          <div class="reco-horizon">
+            <h4>Moyen terme — 1 à 3 mois</h4>
+            <ul>{% for a in reco.actions.moyen_terme %}<li>{{ a }}</li>{% endfor %}</ul>
+          </div>
+          <div class="reco-horizon">
+            <h4>Long terme — 3 à 12 mois</h4>
+            <ul>{% for a in reco.actions.long_terme %}<li>{{ a }}</li>{% endfor %}</ul>
+          </div>
+          <div class="reco-kpi">
+            <strong>KPI à suivre :</strong> {{ reco.kpi | join(" · ") }}<br>
+            <strong>Risque si inaction :</strong> {{ reco.risque }}
+          </div>
         </div>
       </div>
+      {% endfor %}
     </div>
-    {% endfor %}
+    {% endif %}
+
+    <!-- GRAPHIQUE TENDANCE -->
+    {% if chart_tendances != '{}' %}
+    <div class="section-header">
+      <div class="section-title">Évolution <em>dans le temps</em></div>
+    </div>
+    <div class="orn-div"><span class="ol"></span><span class="od"></span><span class="ol"></span></div>
+    <div class="chart-container fade-in">
+      <canvas id="chartTendance"></canvas>
+    </div>
+    {% endif %}
+
   </div>
-  {% endif %}
 
-  <!-- GRAPHIQUE TENDANCE -->
-  {% if chart_tendances != '{}' %}
-  <div class="section-header">
-    <div class="section-title">Évolution <em>dans le temps</em></div>
-  </div>
-  <div class="orn-div"><span class="ol"></span><span class="od"></span><span class="ol"></span></div>
-  <div class="chart-container fade-in">
-    <canvas id="chartTendance"></canvas>
-  </div>
-  {% endif %}
+  <footer>
+    Dashboard QVT · Données agrégées et anonymisées · Règle N≥5 appliquée · Aucun texte brut stocké
+  </footer>
 
-</div>
+  <!-- DONNÉES FLASK — AUCUN JS FONCTIONNEL MODIFIÉ -->
+  <script>
+    // Firebase configuration injected from Flask
+    try {
+      const firebaseConfig = {{ firebase_config | tojson | safe
+    }};
+    if (!firebaseConfig || !firebaseConfig.apiKey) {
+      console.error("❌ Firebase config missing in Dashboard!");
+    } else {
+      firebase.initializeApp(firebaseConfig);
+      window.auth = firebase.auth();
+    }
+    } catch (e) {
+      console.error("❌ Firebase init error in Dashboard:", e);
+    }
 
-<footer>
-  Dashboard QVT · Données agrégées et anonymisées · Règle N≥5 appliquée · Aucun texte brut stocké
-</footer>
-
-<!-- DONNÉES FLASK — AUCUN JS FONCTIONNEL MODIFIÉ -->
-<script>
-const STATS_THEMES    = {{ stats_themes | tojson }};
-const CHART_TENDANCES = {{ chart_tendances | safe }};
-const MOIS_SELEC      = "{{ mois_selec }}";
-const SCORE_GLOBAL    = {{ score_global | tojson }};
-const ALERTE_BURNOUT  = {{ alerte_burnout | tojson }};
-
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('canvas[id^="donut-"]').forEach(canvas => {
-    const pctNeg = parseFloat(canvas.dataset.neg) || 0;
-    const pctNeu = parseFloat(canvas.dataset.neu) || 0;
-    const pctPos = parseFloat(canvas.dataset.pos) || 0;
-    new Chart(canvas, {
-      type: 'doughnut',
-      data: {
-        labels:   ['Négatif', 'Neutre', 'Positif'],
-        datasets: [{
-          data:            [pctNeg, pctNeu, pctPos],
-          backgroundColor: ['#c0392b', '#d97706', '#2d6a4f'],
-          borderWidth:     0,
-          hoverOffset:     4,
-        }]
-      },
-      options: {
-        cutout: '70%',
-        responsive: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: { callbacks: { label: ctx => ` ${ctx.label} : ${ctx.raw.toFixed(1)}%` } }
-        },
-        animation: { animateRotate: true, duration: 900 }
+    // Firebase Auth Guard
+    auth.onAuthStateChanged((user) => {
+      if (!user) {
+        window.location.href = '/login';
+      } else {
+        document.body.classList.add('authenticated');
       }
     });
-  });
 
-  if (Object.keys(CHART_TENDANCES).length > 0) {
-    const tousMois = [...new Set(
-      Object.values(CHART_TENDANCES).flatMap(t => t.points.map(p => p.mois))
-    )].sort();
-    const datasets = Object.entries(CHART_TENDANCES).map(([, info]) => {
-      const scores = tousMois.map(m => {
-        const pt = info.points.find(p => p.mois === m);
-        return pt ? pt.score : null;
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = '/login';
       });
-      return {
-        label: info.label, data: scores,
-        borderColor: info.color, backgroundColor: info.color + '14',
-        tension: 0.4, pointRadius: 4, pointHoverRadius: 6,
-        borderWidth: 2, spanGaps: true, fill: true,
-      };
-    });
-    new Chart(document.getElementById('chartTendance'), {
-      type: 'line',
-      data: { labels: tousMois, datasets },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'bottom', labels: { usePointStyle: true, padding: 24, font: { family: 'DM Sans', size: 12 } } },
-          tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label} : ${ctx.raw?.toFixed(2) ?? 'N/A'}` } }
-        },
-        scales: {
-          y: {
-            min: -1, max: 1, grid: { color: '#f0ede8' },
-            ticks: { font: { family: 'DM Mono', size: 11 }, callback: v => v === 0 ? '0' : v > 0 ? '+' + v : v }
+    }
+
+    const STATS_THEMES = {{ stats_themes | tojson }};
+    const CHART_TENDANCES = {{ chart_tendances | safe }};
+    const MOIS_SELEC = "{{ mois_selec }}";
+    const SCORE_GLOBAL = {{ score_global | tojson }};
+    const ALERTE_BURNOUT = {{ alerte_burnout | tojson }};
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('canvas[id^="donut-"]').forEach(canvas => {
+        const pctNeg = parseFloat(canvas.dataset.neg) || 0;
+        const pctNeu = parseFloat(canvas.dataset.neu) || 0;
+        const pctPos = parseFloat(canvas.dataset.pos) || 0;
+        new Chart(canvas, {
+          type: 'doughnut',
+          data: {
+            labels: ['Négatif', 'Neutre', 'Positif'],
+            datasets: [{
+              data: [pctNeg, pctNeu, pctPos],
+              backgroundColor: ['#c0392b', '#d97706', '#2d6a4f'],
+              borderWidth: 0,
+              hoverOffset: 4,
+            }]
           },
-          x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 11 } } }
-        }
+          options: {
+            cutout: '70%',
+            responsive: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: { callbacks: { label: ctx => ` ${ctx.label} : ${ctx.raw.toFixed(1)}%` } }
+            },
+            animation: { animateRotate: true, duration: 900 }
+          }
+        });
+      });
+
+      if (Object.keys(CHART_TENDANCES).length > 0) {
+        const tousMois = [...new Set(
+          Object.values(CHART_TENDANCES).flatMap(t => t.points.map(p => p.mois))
+        )].sort();
+        const datasets = Object.entries(CHART_TENDANCES).map(([, info]) => {
+          const scores = tousMois.map(m => {
+            const pt = info.points.find(p => p.mois === m);
+            return pt ? pt.score : null;
+          });
+          return {
+            label: info.label, data: scores,
+            borderColor: info.color, backgroundColor: info.color + '14',
+            tension: 0.4, pointRadius: 4, pointHoverRadius: 6,
+            borderWidth: 2, spanGaps: true, fill: true,
+          };
+        });
+        new Chart(document.getElementById('chartTendance'), {
+          type: 'line',
+          data: { labels: tousMois, datasets },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { position: 'bottom', labels: { usePointStyle: true, padding: 24, font: { family: 'DM Sans', size: 12 } } },
+              tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label} : ${ctx.raw?.toFixed(2) ?? 'N/A'}` } }
+            },
+            scales: {
+              y: {
+                min: -1, max: 1, grid: { color: '#f0ede8' },
+                ticks: { font: { family: 'DM Mono', size: 11 }, callback: v => v === 0 ? '0' : v > 0 ? '+' + v : v }
+              },
+              x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 11 } } }
+            }
+          }
+        });
       }
     });
-  }
-});
 
-async function genererSynthese() {
-  const btn = document.getElementById('btnGenerate');
-  const spinner = document.getElementById('spinner');
-  const btnText = document.getElementById('btnText');
-  btn.disabled = true;
-  spinner.style.display = 'block';
-  btnText.textContent = 'Génération…';
-  document.getElementById('synthesePlaceholder').style.display = 'none';
-  document.getElementById('syntheseContent').classList.add('visible');
-  ['synResume', 'synAlertesText', 'synTendance'].forEach(id => {
-    document.getElementById(id).innerHTML = '<span class="cursor"></span>';
-  });
-  document.getElementById('synAlertes').innerHTML = '';
-  document.getElementById('synPositifs').innerHTML = '';
-  document.getElementById('synActions').innerHTML = '';
-  try {
-    const res = await fetch('/api/synthese', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mois: MOIS_SELEC, score_global: SCORE_GLOBAL, alerte_burnout: ALERTE_BURNOUT, stats_themes: STATS_THEMES }),
-    });
-    if (!res.ok) throw new Error('Erreur serveur ' + res.status);
-    const data = await res.json();
-    await typewriterText('synResume',      data.resume        || '');
-    await typewriterText('synAlertesText', data.alertes_texte || '');
-    await typewriterText('synTendance',    data.tendance      || '');
-    const alertesEl = document.getElementById('synAlertes');
-    (data.alertes_themes || []).forEach(t => {
-      const pill = document.createElement('span');
-      pill.className = 'pill danger'; pill.textContent = t; alertesEl.appendChild(pill);
-    });
-    const positifsEl = document.getElementById('synPositifs');
-    (data.positifs || []).forEach(t => {
-      const pill = document.createElement('span');
-      pill.className = 'pill success'; pill.textContent = t; positifsEl.appendChild(pill);
-    });
-    const actionsEl = document.getElementById('synActions');
-    (data.actions || []).forEach((a, i) => {
-      const li = document.createElement('li');
-      li.innerHTML = `<span class="num">${i + 1}</span> ${a}`; actionsEl.appendChild(li);
-    });
-    document.getElementById('syntheseFooter').style.display = 'flex';
-    document.getElementById('synDate').textContent = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
-  } catch (e) {
-    document.getElementById('synResume').textContent = '⚠️ Erreur : ' + e.message;
-  }
-  btn.disabled = false;
-  spinner.style.display = 'none';
-  btnText.textContent = 'Regénérer';
-}
+    async function genererSynthese() {
+      const btn = document.getElementById('btnGenerate');
+      const spinner = document.getElementById('spinner');
+      const btnText = document.getElementById('btnText');
+      btn.disabled = true;
+      spinner.style.display = 'block';
+      btnText.textContent = 'Génération…';
+      document.getElementById('synthesePlaceholder').style.display = 'none';
+      document.getElementById('syntheseContent').classList.add('visible');
+      ['synResume', 'synAlertesText', 'synTendance'].forEach(id => {
+        document.getElementById(id).innerHTML = '<span class="cursor"></span>';
+      });
+      document.getElementById('synAlertes').innerHTML = '';
+      document.getElementById('synPositifs').innerHTML = '';
+      document.getElementById('synActions').innerHTML = '';
+      try {
+        const res = await fetch('/api/synthese', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mois: MOIS_SELEC, score_global: SCORE_GLOBAL, alerte_burnout: ALERTE_BURNOUT, stats_themes: STATS_THEMES }),
+        });
+        if (!res.ok) throw new Error('Erreur serveur ' + res.status);
+        const data = await res.json();
+        await typewriterText('synResume', data.resume || '');
+        await typewriterText('synAlertesText', data.alertes_texte || '');
+        await typewriterText('synTendance', data.tendance || '');
+        const alertesEl = document.getElementById('synAlertes');
+        (data.alertes_themes || []).forEach(t => {
+          const pill = document.createElement('span');
+          pill.className = 'pill danger'; pill.textContent = t; alertesEl.appendChild(pill);
+        });
+        const positifsEl = document.getElementById('synPositifs');
+        (data.positifs || []).forEach(t => {
+          const pill = document.createElement('span');
+          pill.className = 'pill success'; pill.textContent = t; positifsEl.appendChild(pill);
+        });
+        const actionsEl = document.getElementById('synActions');
+        (data.actions || []).forEach((a, i) => {
+          const li = document.createElement('li');
+          li.innerHTML = `<span class="num">${i + 1}</span> ${a}`; actionsEl.appendChild(li);
+        });
+        document.getElementById('syntheseFooter').style.display = 'flex';
+        document.getElementById('synDate').textContent = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+      } catch (e) {
+        document.getElementById('synResume').textContent = '⚠️ Erreur : ' + e.message;
+      }
+      btn.disabled = false;
+      spinner.style.display = 'none';
+      btnText.textContent = 'Regénérer';
+    }
 
-async function typewriterText(elId, text) {
-  const el = document.getElementById(elId);
-  el.textContent = '';
-  for (let i = 0; i < text.length; i++) {
-    el.textContent += text[i];
-    if (i % 5 === 0) await sleep(8);
-  }
-}
+    async function typewriterText(elId, text) {
+      const el = document.getElementById(elId);
+      el.textContent = '';
+      for (let i = 0; i < text.length; i++) {
+        el.textContent += text[i];
+        if (i % 5 === 0) await sleep(8);
+      }
+    }
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-function copierSynthese() {
-  const text = ['synResume', 'synAlertesText', 'synTendance']
-    .map(id => document.getElementById(id).textContent).join('\n\n');
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.querySelector('.btn-copy');
-    btn.textContent = '✓ Copié !';
-    setTimeout(() => { btn.textContent = '📋 Copier'; }, 2000);
-  });
-}
+    function copierSynthese() {
+      const text = ['synResume', 'synAlertesText', 'synTendance']
+        .map(id => document.getElementById(id).textContent).join('\n\n');
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector('.btn-copy');
+        btn.textContent = '✓ Copié !';
+        setTimeout(() => { btn.textContent = '📋 Copier'; }, 2000);
+      });
+    }
 
-setTimeout(() => location.reload(), 60000);
-</script>
+    setTimeout(() => location.reload(), 60000);
+  </script>
 </body>
+
 </html>

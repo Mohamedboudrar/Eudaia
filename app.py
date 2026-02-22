@@ -15,8 +15,11 @@ import json, os
 try:
     from dotenv import load_dotenv
     from pathlib import Path
-    load_dotenv(dotenv_path=Path(__file__).parent / ".env")
+    dotenv_path = Path(__file__).parent / ".env"
+    success = load_dotenv(dotenv_path=dotenv_path)
+    print(f"📡 .env load status: {'SUCCESS' if success else 'FAILED'} (path: {dotenv_path})")
 except ImportError:
+    print("⚠️ python-dotenv not found")
     pass
 
 from nlp_engine import (
@@ -50,6 +53,21 @@ except ImportError:
 
 app = Flask(__name__)
 DEFAULT_MODEL = "logistic"
+
+# --- Firebase Config from Environment ---
+FIREBASE_CONFIG = {
+    "apiKey":            os.environ.get("FIREBASE_API_KEY"),
+    "authDomain":        os.environ.get("FIREBASE_AUTH_DOMAIN"),
+    "projectId":         os.environ.get("FIREBASE_PROJECT_ID"),
+    "storageBucket":     os.environ.get("FIREBASE_STORAGE_BUCKET"),
+    "messagingSenderId": os.environ.get("FIREBASE_MESSAGING_SENDER_ID"),
+    "appId":             os.environ.get("FIREBASE_APP_ID"),
+    "measurementId":     os.environ.get("FIREBASE_MEASUREMENT_ID"),
+}
+
+print("🔥 Firebase Config loaded:")
+for k, v in FIREBASE_CONFIG.items():
+    print(f"   {k}: {'[REDACTED]' if v else 'MISSING'}")
 
 # =============================================================================
 # INITIALISATION
@@ -108,6 +126,14 @@ def soumettre():
 @app.route("/merci")
 def merci():
     return render_template("merci.html")
+
+# =============================================================================
+# ROUTE LOGIN
+# =============================================================================
+
+@app.route("/login")
+def login():
+    return render_template("login.html", firebase_config=FIREBASE_CONFIG)
 
 # =============================================================================
 # ROUTE 4 : Dashboard RH
@@ -190,6 +216,7 @@ def dashboard():
         mois_selec             = mois_selec,
         model_info             = model_info,
         now_str                = datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+        firebase_config        = FIREBASE_CONFIG,
     ))
     # CORRECTIF : empêche le navigateur de mettre en cache le dashboard
     # pour que les nouvelles soumissions soient immédiatement visibles

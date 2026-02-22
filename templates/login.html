@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion — QVT Agent</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <style>
+        :root {
+            --ink: #0d0d0d;
+            --ink-soft: #4a4a4a;
+            --ink-mute: #9a9a9a;
+            --cream: #faf9f6;
+            --white: #ffffff;
+            --bg: #f5f4f0;
+            --line: #e8e5df;
+            --gold: #c9a96e;
+            --gold-lt: #f0e8d8;
+            --red: #c0392b;
+            --radius: 3px;
+            --shadow-md: 0 16px 48px rgba(13, 13, 13, .08);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: var(--white);
+            max-width: 400px;
+            width: 100%;
+            padding: 48px 40px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--line);
+            text-align: center;
+            position: relative;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gold);
+        }
+
+        .logo-orn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .lo-line {
+            width: 30px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold));
+        }
+
+        .lo-line.r {
+            background: linear-gradient(90deg, var(--gold), transparent);
+        }
+
+        .lo-dim {
+            width: 6px;
+            height: 6px;
+            background: var(--gold);
+            transform: rotate(45deg);
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 8px;
+        }
+
+        h1 em {
+            font-style: italic;
+            color: var(--gold);
+        }
+
+        p.subtitle {
+            font-size: 0.85rem;
+            color: var(--ink-mute);
+            margin-bottom: 32px;
+            font-weight: 300;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.65rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 0.9rem;
+            color: var(--ink);
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--gold);
+            background: var(--white);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: var(--ink);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background .2s, color .2s;
+        }
+
+        .btn-login:hover {
+            background: var(--gold);
+            color: var(--ink);
+        }
+
+        #error-message {
+            font-size: 0.8rem;
+            color: var(--red);
+            margin-top: 16px;
+            min-height: 1.2em;
+        }
+
+        footer {
+            margin-top: 32px;
+            font-size: 0.65rem;
+            color: var(--ink-mute);
+            letter-spacing: 0.05em;
+            font-weight: 300;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+        <div class="logo-orn">
+            <span class="lo-line"></span>
+            <span class="lo-dim"></span>
+            <span class="lo-line r"></span>
+        </div>
+
+        <h1>Accès <em>Dashboard</em></h1>
+        <p class="subtitle">Connectez-vous pour accéder aux statistiques QVT</p>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Email professionnel</label>
+                <input type="email" id="email" required placeholder="nom@entreprise.com">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" required placeholder="••••••••">
+            </div>
+
+            <button type="submit" class="btn-login" id="btn-submit">Se connecter</button>
+        </form>
+
+        <div id="error-message"></div>
+
+        <footer>
+            QVT Agent · Authentification Sécurisée
+        </footer>
+    </div>
+
+    <script>
+        // Firebase configuration injected from Flask
+        try {
+            const firebaseConfig = {{ firebase_config | tojson | safe
+        }};
+        if (!firebaseConfig || !firebaseConfig.apiKey) {
+            console.error("❌ Firebase config is missing OR apiKey is null! Check .env on server.");
+            document.getElementById('error-message').textContent = "Erreur de configuration serveur : Firebase n'est pas initialisé.";
+        } else {
+            firebase.initializeApp(firebaseConfig);
+            window.auth = firebase.auth();
+            console.log("✅ Firebase initialized successfully.");
+        }
+        } catch (e) {
+            console.error("❌ Firebase initialization failed:", e);
+        }
+    </script>
+    <script>
+        const loginForm = document.getElementById('login-form');
+        const errorMessage = document.getElementById('error-message');
+        const btnSubmit = document.getElementById('btn-submit');
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            errorMessage.textContent = '';
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = 'Connexion...';
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Success
+                    window.location.href = '/dashboard';
+                })
+                .catch((error) => {
+                    // Error
+                    btnSubmit.disabled = false;
+                    btnSubmit.textContent = 'Se connecter';
+                    console.error(error);
+                    errorMessage.textContent = "Email ou mot de passe incorrect.";
+                });
+        });
+
+        // Check if already logged in
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                window.location.href = '/dashboard';
+            }
+        });
+    </script>
+</body>
+
+</html>
